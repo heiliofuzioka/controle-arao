@@ -3,9 +3,9 @@
 import { writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
 
-const BG = [0xc2, 0x41, 0x0c];
-const POP = [0xff, 0xf8, 0xf0];
-const STICK = [0xe8, 0xc3, 0x8e];
+const BG = [0x24, 0x4c, 0x9a];
+const POP = [0xfd, 0xed, 0xcb];
+const STICK = [0xd9, 0xa5, 0x77];
 
 const crcTable = Array.from({ length: 256 }, (_, n) => {
   let c = n;

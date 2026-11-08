@@ -237,3 +237,5 @@ Critério de validação de agosto:
 - Se "por fora" é só a Escola Piratininga ou se inclui encomendas avulsas (se incluir, vira um terceiro ponto de venda).
 - Frequência do acerto com o Açougue.
 - Tokens do design system (enquanto não chegam, usar `src/styles/tokens.css` provisório).
+
+Toda mudança de regra, tela ou schema atualiza este arquivo e o CHANGELOG no mesmo commit. Decisão nova vai para docs/decisoes.md.

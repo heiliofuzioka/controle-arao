@@ -21,9 +21,8 @@ export default defineConfig({
         start_url: '/controle-arao/',
         scope: '/controle-arao/',
         display: 'standalone',
-        orientation: 'portrait',
-        background_color: '#fff8f0',
-        theme_color: '#c2410c',
+        background_color: '#F4F2ED',
+        theme_color: '#F4F2ED',
         icons: [
           { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },

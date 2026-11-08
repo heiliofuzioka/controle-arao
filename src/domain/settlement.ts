@@ -1,4 +1,5 @@
 import { multiplyCents, sumCents } from './money';
+import { alive, newBase, touch } from './records';
 import type { Cents, LocalDate, Sale, Settlement } from './types';
 
 export interface SettlementInput {
@@ -36,10 +37,10 @@ export function computeSettlement(input: SettlementInput): SettlementResult {
   return { ok: true, soldQuantity, valueCents: multiplyCents(soldQuantity, priceCents) };
 }
 
-/** A venda que nasce do acerto (gravada na mesma transação). */
-export function saleFromSettlement(settlement: Settlement, id: string, createdAt: string): Sale {
+/** A venda que nasce do acerto (gravada na mesma transação, na data do acerto). */
+export function saleFromSettlement(settlement: Settlement, saleId: string, now: string): Sale {
   return {
-    id,
+    ...newBase(saleId, now),
     date: settlement.date,
     pointId: settlement.pointId,
     productId: settlement.productId,
@@ -47,16 +48,15 @@ export function saleFromSettlement(settlement: Settlement, id: string, createdAt
     valueCents: settlement.valueCents,
     origin: 'settlement',
     settlementId: settlement.id,
-    createdAt,
   };
 }
 
 /** A receber = soma dos acertos ainda não pagos. */
 export function receivableCents(settlements: Settlement[]): Cents {
-  return sumCents(settlements.filter((s) => !s.paid).map((s) => s.valueCents));
+  return sumCents(alive(settlements).filter((s) => !s.paid).map((s) => s.valueCents));
 }
 
 /** Botão "Recebi". */
-export function markPaid(settlement: Settlement, paidDate: LocalDate): Settlement {
-  return { ...settlement, paid: true, paidDate };
+export function markPaid(settlement: Settlement, paidDate: LocalDate, now: string): Settlement {
+  return touch(settlement, { paid: true, paidDate }, now);
 }

@@ -1,14 +1,11 @@
 import { addDays, addMonths, endOfMonth, endOfWeek, format, parse, startOfMonth, startOfWeek } from 'date-fns';
-import type { LocalDate } from './types';
+import type { LocalDate, MonthKey } from './types';
 
 /** Intervalo fechado de datas locais: start ≤ data ≤ end. */
 export interface DateRange {
   start: LocalDate;
   end: LocalDate;
 }
-
-/** 'YYYY-MM' */
-export type MonthKey = string;
 
 const LOCAL_DATE = 'yyyy-MM-dd';
 const WEEK = { weekStartsOn: 1 } as const; // segunda a domingo
@@ -77,4 +74,52 @@ export function daysBetween(a: LocalDate, b: LocalDate): number {
   const ms = parseLocalDate(b).getTime() - parseLocalDate(a).getTime();
   // Math.round absorve a hora a mais/a menos de horário de verão.
   return Math.round(ms / 86_400_000);
+}
+
+/** Segunda-feira da semana que contém a data. */
+export function weekStartOf(date: LocalDate): LocalDate {
+  return weekRange(date).start;
+}
+
+/** Semana a partir da segunda (weekStart). */
+export function weekRangeFromStart(weekStart: LocalDate): DateRange {
+  return { start: weekStart, end: shiftDays(weekStart, 6) };
+}
+
+export function shiftDays(date: LocalDate, days: number): LocalDate {
+  return toLocalDate(addDays(parseLocalDate(date), days));
+}
+
+/**
+ * Semanas que contam no mês: as que terminam (domingo) dentro dele, porque o
+ * fechamento da semana é lançado no domingo. Dá 4 ou 5 semanas; a primeira pode
+ * começar no mês anterior.
+ */
+export function weeksOfMonth(month: MonthKey): LocalDate[] {
+  const { start, end } = monthRange(month);
+  const weeks: LocalDate[] = [];
+  for (let sunday = sundayOfWeek(start); sunday <= end; sunday = shiftDays(sunday, 7)) {
+    weeks.push(shiftDays(sunday, -6));
+  }
+  return weeks;
+}
+
+/** As últimas `count` semanas terminando na semana da data (mais antiga primeiro). */
+export function lastWeeks(date: LocalDate, count: number): LocalDate[] {
+  const current = weekStartOf(date);
+  return Array.from({ length: count }, (_, i) => shiftDays(current, (i - count + 1) * 7));
+}
+
+/** Os últimos `count` meses terminando no mês da data (mais antigo primeiro). */
+export function lastMonths(date: LocalDate, count: number): MonthKey[] {
+  const current = monthKey(date);
+  return Array.from({ length: count }, (_, i) => shiftMonth(current, i - count + 1));
+}
+
+export function yearRange(year: number): DateRange {
+  return { start: `${year}-01-01`, end: `${year}-12-31` };
+}
+
+export function monthsOfYear(year: number): MonthKey[] {
+  return Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, '0')}`);
 }

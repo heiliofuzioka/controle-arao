@@ -36,8 +36,10 @@ describe('acerto', () => {
 
   it('cria a venda do acerto na data do acerto', () => {
     const s = settlement({ id: 'acerto-1', date: '2026-11-07', soldQuantity: 25, valueCents: 8750 });
-    expect(saleFromSettlement(s, 'venda-1', '2026-11-07T15:00:00')).toEqual({
+    expect(saleFromSettlement(s, 'venda-1', 'agora')).toEqual({
       id: 'venda-1',
+      createdAt: 'agora',
+      updatedAt: 'agora',
       date: '2026-11-07',
       pointId: s.pointId,
       productId: s.productId,
@@ -45,25 +47,25 @@ describe('acerto', () => {
       valueCents: 8750,
       origin: 'settlement',
       settlementId: 'acerto-1',
-      createdAt: '2026-11-07T15:00:00',
     });
   });
 });
 
 describe('a receber', () => {
-  it('soma só os acertos não pagos', () => {
+  it('soma só os acertos não pagos e não apagados', () => {
     const list = [
       settlement({ valueCents: 8750 }),
       settlement({ valueCents: 1000, paid: true, paidDate: '2026-11-03' }),
       settlement({ valueCents: 250 }),
+      settlement({ valueCents: 7777, deletedAt: 'x' }),
     ];
     expect(receivableCents(list)).toBe(9000);
   });
 
-  it('"Recebi" marca como pago e grava a data', () => {
+  it('"Recebi" marca como pago, grava a data e atualiza updatedAt', () => {
     const s = settlement({ valueCents: 8750 });
-    const paid = markPaid(s, '2026-11-09');
-    expect(paid).toMatchObject({ paid: true, paidDate: '2026-11-09' });
+    const paid = markPaid(s, '2026-11-09', 'agora');
+    expect(paid).toMatchObject({ paid: true, paidDate: '2026-11-09', updatedAt: 'agora' });
     expect(s.paid).toBe(false);
     expect(receivableCents([paid])).toBe(0);
   });

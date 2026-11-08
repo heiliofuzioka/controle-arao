@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   daysBetween,
   isInRange,
+  lastMonths,
+  lastWeeks,
+  monthsOfYear,
+  weekRangeFromStart,
+  weekStartOf,
+  weeksOfMonth,
+  yearRange,
   monthKey,
   monthRange,
   parseLocalDate,
@@ -101,5 +108,32 @@ describe('mês do calendário', () => {
     const oct = monthRange('2026-10');
     expect(days.filter((d) => isInRange(d, sept))).toHaveLength(3);
     expect(days.filter((d) => isInRange(d, oct))).toHaveLength(4);
+  });
+});
+
+describe('semanas do mês e ano', () => {
+  it('acha a segunda da semana', () => {
+    expect(weekStartOf('2026-11-08')).toBe('2026-11-02');
+    expect(weekRangeFromStart('2026-11-02')).toEqual({ start: '2026-11-02', end: '2026-11-08' });
+  });
+
+  it('o mês tem as semanas cujo domingo cai nele', () => {
+    // outubro/2026: domingos 4, 11, 18, 25 → 4 semanas; a primeira começa em setembro
+    expect(weeksOfMonth('2026-10')).toEqual(['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-19']);
+    // novembro/2026: domingos 1, 8, 15, 22, 29 → 5 semanas
+    expect(weeksOfMonth('2026-11')).toHaveLength(5);
+    expect(weeksOfMonth('2026-11')[0]).toBe('2026-10-26');
+  });
+
+  it('lista as últimas semanas e os últimos meses', () => {
+    expect(lastWeeks('2026-11-08', 3)).toEqual(['2026-10-19', '2026-10-26', '2026-11-02']);
+    expect(lastMonths('2026-02-10', 3)).toEqual(['2025-12', '2026-01', '2026-02']);
+  });
+
+  it('dá o ano inteiro', () => {
+    expect(yearRange(2026)).toEqual({ start: '2026-01-01', end: '2026-12-31' });
+    expect(monthsOfYear(2026)).toHaveLength(12);
+    expect(monthsOfYear(2026)[0]).toBe('2026-01');
+    expect(monthsOfYear(2026)[11]).toBe('2026-12');
   });
 });

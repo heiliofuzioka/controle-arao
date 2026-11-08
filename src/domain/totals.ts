@@ -1,6 +1,21 @@
 import { isInRange, type DateRange } from './dates';
-import { sumCents } from './money';
-import type { Cents, Expense, ID, PersonalExpense, Production, Sale, Settlement } from './types';
+import { roundCents, sumCents } from './money';
+import { alive } from './records';
+import { weekCloseDate } from './stock';
+import type {
+  Cents,
+  Expense,
+  ExpenseCategory,
+  ID,
+  PersonalExpense,
+  Sale,
+  SalesPoint,
+  Settlement,
+  WeekClose,
+} from './types';
+
+const inRange = <T extends { date: string; deletedAt?: string }>(rows: T[], range: DateRange) =>
+  alive(rows).filter((r) => isInRange(r.date, range));
 
 export interface SummaryData {
   sales: Sale[];
@@ -12,21 +27,21 @@ export interface SummaryData {
 export interface PeriodSummary {
   /** Soma das vendas do período (Açougue conta na data do acerto). */
   revenueCents: Cents;
-  /** Parte do faturamento que já entrou no bolso. */
+  /** Parte do faturamento que já entrou: venda direta + importadas + acertos pagos. */
   receivedCents: Cents;
   /** Parte do faturamento que vem de acertos ainda não pagos. */
   pendingCents: Cents;
   expensesCents: Cents;
-  /** Faturamento − despesas. */
-  grossProfitCents: Cents;
+  /** Saldo = faturamento − despesas. */
+  balanceCents: Cents;
   personalCents: Cents;
-  /** Lucro bruto − gastos pessoais. */
+  /** Sobra = saldo − gastos pessoais. */
   leftoverCents: Cents;
 }
 
 export function periodSummary(data: SummaryData, range: DateRange): PeriodSummary {
-  const unpaid = new Set(data.settlements.filter((s) => !s.paid).map((s) => s.id));
-  const sales = data.sales.filter((s) => isInRange(s.date, range));
+  const unpaid = new Set(alive(data.settlements).filter((s) => !s.paid).map((s) => s.id));
+  const sales = inRange(data.sales, range);
 
   const revenueCents = sumCents(sales.map((s) => s.valueCents));
   const pendingCents = sumCents(
@@ -34,103 +49,154 @@ export function periodSummary(data: SummaryData, range: DateRange): PeriodSummar
       .filter((s) => s.origin === 'settlement' && s.settlementId !== undefined && unpaid.has(s.settlementId))
       .map((s) => s.valueCents),
   );
-  const expensesCents = sumCents(data.expenses.filter((e) => isInRange(e.date, range)).map((e) => e.valueCents));
-  const personalCents = sumCents(
-    data.personalExpenses.filter((e) => isInRange(e.date, range)).map((e) => e.valueCents),
-  );
-  const grossProfitCents = revenueCents - expensesCents;
+  const expensesCents = sumCents(inRange(data.expenses, range).map((e) => e.valueCents));
+  const personalCents = sumCents(inRange(data.personalExpenses, range).map((e) => e.valueCents));
+  const balanceCents = revenueCents - expensesCents;
 
   return {
     revenueCents,
     receivedCents: revenueCents - pendingCents,
     pendingCents,
     expensesCents,
-    grossProfitCents,
+    balanceCents,
     personalCents,
-    leftoverCents: grossProfitCents - personalCents,
+    leftoverCents: balanceCents - personalCents,
   };
 }
 
-export interface SalesCell {
-  pointId: ID;
-  productId: ID;
-  quantity: number;
-  valueCents: Cents;
+export interface ProfitData {
+  sales: Sale[];
+  expenses: Expense[];
+  expenseCategories: ExpenseCategory[];
+  /** Custo por unidade de cada produto que tem receita (pricing.unitCostByProduct). */
+  unitCosts: ReadonlyMap<ID, number>;
 }
 
-/** Quantidade e faturamento por ponto × produto no período (telas Semana e Mês). */
-export function salesByPointAndProduct(sales: Sale[], range: DateRange): SalesCell[] {
-  const cells = new Map<string, SalesCell>();
+export interface EstimatedProfit {
+  /** faturamento − custo dos produtos vendidos − despesas que não são custo do produto. */
+  profitCents: Cents;
+  revenueCents: Cents;
+  productCostCents: Cents;
+  /** Despesas fora de Ingredientes e Embalagens (essas já estão no custo dos produtos). */
+  otherExpensesCents: Cents;
+  /** false quando algum produto vendido não tem receita (lucro incompleto). */
+  complete: boolean;
+  missingProductIds: ID[];
+}
+
+/**
+ * Lucro estimado sem contar Ingredientes e Embalagens duas vezes.
+ * Produto vendido sem receita fica sem custo e marca o resultado como incompleto.
+ */
+export function estimatedProfit(data: ProfitData, range: DateRange): EstimatedProfit {
+  const sales = inRange(data.sales, range);
+  const productCategories = new Set(data.expenseCategories.filter((c) => c.isProductCost).map((c) => c.id));
+
+  let productCost = 0;
+  const missing = new Set<ID>();
   for (const s of sales) {
-    if (!isInRange(s.date, range)) continue;
-    const key = `${s.pointId}|${s.productId}`;
-    const cell = cells.get(key) ?? { pointId: s.pointId, productId: s.productId, quantity: 0, valueCents: 0 };
-    cell.quantity += s.quantity;
-    cell.valueCents = sumCents([cell.valueCents, s.valueCents]);
-    cells.set(key, cell);
+    const unit = data.unitCosts.get(s.productId);
+    if (unit === undefined) {
+      if (s.quantity > 0) missing.add(s.productId);
+    } else {
+      productCost += unit * s.quantity;
+    }
   }
-  return [...cells.values()];
+
+  const revenueCents = sumCents(sales.map((s) => s.valueCents));
+  const productCostCents = roundCents(productCost);
+  const otherExpensesCents = sumCents(
+    inRange(data.expenses, range)
+      .filter((e) => !productCategories.has(e.categoryId))
+      .map((e) => e.valueCents),
+  );
+
+  return {
+    profitCents: revenueCents - productCostCents - otherExpensesCents,
+    revenueCents,
+    productCostCents,
+    otherExpensesCents,
+    complete: missing.size === 0,
+    missingProductIds: [...missing],
+  };
 }
 
-export interface QuantityValue {
-  quantity: number;
-  valueCents: Cents;
-}
-
-/** Junta as células por uma chave (ex.: total por produto ou por ponto). */
-export function totalBy(cells: SalesCell[], key: 'pointId' | 'productId'): Map<ID, QuantityValue> {
-  const out = new Map<ID, QuantityValue>();
-  for (const c of cells) {
-    const t = out.get(c[key]) ?? { quantity: 0, valueCents: 0 };
-    t.quantity += c.quantity;
-    t.valueCents += c.valueCents;
-    out.set(c[key], t);
+/** Faturamento dividido entre venda na mão e Açougue (pelo modo do ponto). */
+export function revenueByMode(sales: Sale[], points: SalesPoint[], range: DateRange): { directCents: Cents; consignmentCents: Cents } {
+  const consignment = new Set(points.filter((p) => p.mode === 'consignment').map((p) => p.id));
+  let directCents = 0;
+  let consignmentCents = 0;
+  for (const s of inRange(sales, range)) {
+    if (consignment.has(s.pointId)) consignmentCents += s.valueCents;
+    else directCents += s.valueCents;
   }
-  return out;
+  return { directCents, consignmentCents };
 }
 
-/** Lançamentos de uma célula (tocar numa célula da Semana). */
-export function salesInCell(sales: Sale[], range: DateRange, pointId: ID, productId: ID): Sale[] {
-  return sales
-    .filter((s) => isInRange(s.date, range) && s.pointId === pointId && s.productId === productId)
-    .sort((a, b) => (a.date + (a.time ?? '')).localeCompare(b.date + (b.time ?? '')));
-}
-
-export interface ProductionTotal {
-  quantity: number;
+export interface ProductPeriodRow {
+  productId: ID;
+  produced: number;
   loss: number;
+  soldDirect: number;
+  soldConsignment: number;
+  /** vendido na mão + Açougue */
+  sold: number;
+  revenueCents: Cents;
 }
 
-export function productionByProduct(productions: Production[], range: DateRange): Map<ID, ProductionTotal> {
-  const out = new Map<ID, ProductionTotal>();
-  for (const p of productions) {
-    if (!isInRange(p.date, range)) continue;
-    const t = out.get(p.productId) ?? { quantity: 0, loss: 0 };
-    t.quantity += p.quantity;
-    t.loss += p.loss;
-    out.set(p.productId, t);
+/**
+ * Por produto no período: produzido, vendido (na mão + Açougue) e faturamento.
+ * Fechamentos contam no domingo da semana.
+ */
+export function productPeriodReport(
+  data: { weekCloses: WeekClose[]; sales: Sale[]; points: SalesPoint[] },
+  productIds: ID[],
+  range: DateRange,
+): ProductPeriodRow[] {
+  const consignment = new Set(data.points.filter((p) => p.mode === 'consignment').map((p) => p.id));
+  const rows = new Map<ID, ProductPeriodRow>(
+    productIds.map((productId) => [
+      productId,
+      { productId, produced: 0, loss: 0, soldDirect: 0, soldConsignment: 0, sold: 0, revenueCents: 0 },
+    ]),
+  );
+  for (const w of alive(data.weekCloses)) {
+    const row = rows.get(w.productId);
+    if (!row || !isInRange(weekCloseDate(w), range)) continue;
+    row.produced += w.produced;
+    row.loss += w.loss;
   }
-  return out;
+  for (const s of inRange(data.sales, range)) {
+    const row = rows.get(s.productId);
+    if (!row) continue;
+    if (consignment.has(s.pointId)) row.soldConsignment += s.quantity;
+    else row.soldDirect += s.quantity;
+    row.sold += s.quantity;
+    row.revenueCents += s.valueCents;
+  }
+  return [...rows.values()];
 }
 
 export function expensesByCategory(expenses: Expense[], range: DateRange): Map<ID, Cents> {
   const out = new Map<ID, Cents>();
-  for (const e of expenses) {
-    if (!isInRange(e.date, range)) continue;
-    out.set(e.categoryId, sumCents([out.get(e.categoryId) ?? 0, e.valueCents]));
-  }
+  for (const e of inRange(expenses, range)) out.set(e.categoryId, (out.get(e.categoryId) ?? 0) + e.valueCents);
   return out;
+}
+
+/** Fração (para anéis e porcentagens). null quando o total é 0. */
+export function ratio(part: number, whole: number): number | null {
+  return whole === 0 ? null : part / whole;
 }
 
 export interface Comparison {
   current: number;
   previous: number;
   delta: number;
-  /** Variação relativa (0,1 = +10%). null quando o mês anterior é 0. */
+  /** Variação relativa (0,1 = +10%). null quando o anterior é 0. */
   ratio: number | null;
 }
 
-/** Comparação com o mês anterior. */
+/** Comparação com o período anterior (mês anterior, outro ano…). */
 export function compare(current: number, previous: number): Comparison {
   return {
     current,

@@ -1,4 +1,5 @@
 import { roundCents } from './money';
+import { alive } from './records';
 import type { Cents, ID, Ingredient, Product, Recipe, RecipeItem } from './types';
 
 // Todos os custos aqui são em centavos SEM arredondar.
@@ -20,6 +21,7 @@ export interface RecipeCost {
   unitCost: number;
 }
 
+/** Custo de um sabor. `ingredientsById` deve incluir ingredientes apagados que ainda estejam numa receita. */
 export function recipeCost(
   recipe: Recipe,
   items: RecipeItem[],
@@ -27,7 +29,7 @@ export function recipeCost(
 ): RecipeCost {
   if (!(recipe.yield > 0)) throw new Error('O rendimento da receita precisa ser maior que 0.');
   let ingredientsCost = 0;
-  for (const item of items) {
+  for (const item of alive(items)) {
     if (item.recipeId !== recipe.id) continue;
     const ingredient = ingredientsById.get(item.ingredientId);
     if (!ingredient) throw new Error(`Ingrediente ${item.ingredientId} não encontrado.`);
@@ -38,7 +40,7 @@ export function recipeCost(
   return { ingredientsCost, batchCost, unitCost };
 }
 
-/** preço = custo por unidade / (1 − margem), arredondado para centavos. */
+/** preço sugerido = custo por unidade / (1 − margem), arredondado para centavos. */
 export function priceForMargin(unitCost: number, margin: number): Cents {
   if (!(margin >= 0 && margin < 1)) throw new Error('A margem precisa estar entre 0% e 99%.');
   return roundCents(unitCost / (1 - margin));
@@ -56,9 +58,49 @@ export function markupForPrice(priceCents: Cents, unitCost: number): number | nu
   return (priceCents - unitCost) / unitCost;
 }
 
+/** lucro por unidade = preço − custo (sem arredondar). */
+export function unitProfit(priceCents: Cents, unitCost: number): number {
+  return priceCents - unitCost;
+}
+
+const activeRecipes = (recipes: Recipe[]) => alive(recipes).filter((r) => r.active);
+
+/**
+ * Custo por unidade de um produto = média do custo por unidade dos sabores ativos.
+ * null quando o produto não tem receita (as telas avisam "cadastre a receita").
+ */
+export function productUnitCost(
+  productId: ID,
+  recipes: Recipe[],
+  items: RecipeItem[],
+  ingredients: Ingredient[],
+): number | null {
+  const ingredientsById = new Map(ingredients.map((i) => [i.id, i]));
+  const own = activeRecipes(recipes).filter((r) => r.productId === productId);
+  if (own.length === 0) return null;
+  const total = own.reduce((sum, r) => sum + recipeCost(r, items, ingredientsById).unitCost, 0);
+  return total / own.length;
+}
+
+/** Custo por unidade de cada produto que tem receita. */
+export function unitCostByProduct(
+  products: Product[],
+  recipes: Recipe[],
+  items: RecipeItem[],
+  ingredients: Ingredient[],
+): Map<ID, number> {
+  const out = new Map<ID, number>();
+  for (const p of alive(products)) {
+    const cost = productUnitCost(p.id, recipes, items, ingredients);
+    if (cost !== null) out.set(p.id, cost);
+  }
+  return out;
+}
+
 export interface MarginAlert {
   productId: ID;
   recipeId: ID;
+  recipeName: string;
   unitCost: number;
   priceCents: Cents;
   /** null quando o produto ainda não tem preço. */
@@ -67,20 +109,20 @@ export interface MarginAlert {
 }
 
 /**
- * Recalcula todas as receitas (ex.: depois de mudar o preço de um ingrediente)
- * e devolve os produtos cuja margem no preço atual ficou abaixo da meta.
- * Produto sem preço (0) também entra no aviso.
+ * Recalcula todos os sabores (ex.: depois de mudar o preço de um ingrediente) e devolve
+ * os que ficaram abaixo da meta de margem no preço atual do produto.
+ * Produto sem preço (0) também entra no aviso (confirmado em 08/11).
  */
-export function productsBelowTarget(
+export function recipesBelowTarget(
   products: Product[],
   recipes: Recipe[],
   items: RecipeItem[],
   ingredients: Ingredient[],
 ): MarginAlert[] {
   const ingredientsById = new Map(ingredients.map((i) => [i.id, i]));
-  const productsById = new Map(products.map((p) => [p.id, p]));
+  const productsById = new Map(alive(products).map((p) => [p.id, p]));
   const alerts: MarginAlert[] = [];
-  for (const recipe of recipes) {
+  for (const recipe of activeRecipes(recipes)) {
     const product = productsById.get(recipe.productId);
     if (!product) continue;
     const { unitCost } = recipeCost(recipe, items, ingredientsById);
@@ -89,6 +131,7 @@ export function productsBelowTarget(
       alerts.push({
         productId: product.id,
         recipeId: recipe.id,
+        recipeName: recipe.name,
         unitCost,
         priceCents: product.priceCents,
         margin,

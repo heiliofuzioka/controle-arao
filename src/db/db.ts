@@ -1,18 +1,20 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type {
+  Category,
   Delivery,
   Expense,
   ExpenseCategory,
   Ingredient,
+  MonthlyGoal,
   PersonalExpense,
   Product,
-  Production,
   Recipe,
   RecipeItem,
   Sale,
   SalesPoint,
   Settlement,
   StockAdjustment,
+  WeekClose,
 } from '../domain/types';
 import { seed } from './seed';
 
@@ -28,9 +30,10 @@ export const DB_NAME = 'controle-arao';
 export const SCHEMA_VERSION = 1;
 
 export class ControleAraoDB extends Dexie {
+  categories!: EntityTable<Category, 'id'>;
   products!: EntityTable<Product, 'id'>;
   salesPoints!: EntityTable<SalesPoint, 'id'>;
-  productions!: EntityTable<Production, 'id'>;
+  weekCloses!: EntityTable<WeekClose, 'id'>;
   sales!: EntityTable<Sale, 'id'>;
   deliveries!: EntityTable<Delivery, 'id'>;
   settlements!: EntityTable<Settlement, 'id'>;
@@ -38,6 +41,7 @@ export class ControleAraoDB extends Dexie {
   expenseCategories!: EntityTable<ExpenseCategory, 'id'>;
   expenses!: EntityTable<Expense, 'id'>;
   personalExpenses!: EntityTable<PersonalExpense, 'id'>;
+  monthlyGoals!: EntityTable<MonthlyGoal, 'id'>;
   ingredients!: EntityTable<Ingredient, 'id'>;
   recipes!: EntityTable<Recipe, 'id'>;
   recipeItems!: EntityTable<RecipeItem, 'id'>;
@@ -47,19 +51,22 @@ export class ControleAraoDB extends Dexie {
     super(name);
 
     // Toda mudança de schema cria uma nova db.version(n) com migração.
-    // Nunca editar uma versão antiga.
+    // Nunca editar uma versão antiga depois que ela chegar ao iPhone.
     // Booleanos (active, paid) não são indexáveis no IndexedDB: filtrar em memória.
+    // Registros apagados ficam com deletedAt e são filtrados com alive().
     this.version(1).stores({
-      products: 'id, name',
-      salesPoints: 'id, name',
-      productions: 'id, date, productId',
-      sales: 'id, date, pointId, productId, origin, settlementId',
+      categories: 'id, order',
+      products: 'id, categoryId',
+      salesPoints: 'id',
+      weekCloses: 'id, weekStart, productId, [weekStart+productId]',
+      sales: 'id, date, pointId, productId, origin, weekCloseId, settlementId',
       deliveries: 'id, date, pointId, productId',
       settlements: 'id, date, pointId, productId',
-      stockAdjustments: 'id, date, productId, location',
-      expenseCategories: 'id, name',
+      stockAdjustments: 'id, date, productId',
+      expenseCategories: 'id',
       expenses: 'id, date, categoryId',
       personalExpenses: 'id, date',
+      monthlyGoals: 'id, month',
       ingredients: 'id, name',
       recipes: 'id, productId',
       recipeItems: 'id, recipeId, ingredientId',

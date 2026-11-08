@@ -4,39 +4,35 @@ import {
   marginForPrice,
   markupForPrice,
   priceForMargin,
-  productsBelowTarget,
+  productUnitCost,
   recipeCost,
+  recipesBelowTarget,
+  unitCostByProduct,
+  unitProfit,
 } from './pricing';
-import type { Ingredient, Product, Recipe, RecipeItem } from './types';
-
-const ingredient = (o: Partial<Ingredient>): Ingredient => ({
-  id: 'x',
-  name: 'x',
-  pricePaidCents: 0,
-  packageQty: 1,
-  unit: 'g',
-  updatedAt: '',
-  ...o,
-});
+import { OTHER, P, ingredient, product, recipe, recipeItem } from './testing';
 
 const leite = ingredient({ id: 'leite', name: 'Leite condensado', pricePaidCents: 600, packageQty: 395 });
 const cacau = ingredient({ id: 'cacau', name: 'Cacau', pricePaidCents: 1500, packageQty: 200 });
+const ingredients = [leite, cacau];
 
-const recipe: Recipe = {
+const tradicional = recipe({
   id: 'r1',
-  productId: 'brownie',
+  productId: OTHER,
+  name: 'Tradicional',
   yield: 20,
   packagingPerUnitCents: 15,
   laborPerBatchCents: 2000,
   otherCostsPerBatchCents: 300,
   targetMargin: 0.5,
-};
-const items: RecipeItem[] = [
-  { id: 'i1', recipeId: 'r1', ingredientId: 'leite', quantity: 790 },
-  { id: 'i2', recipeId: 'r1', ingredientId: 'cacau', quantity: 100 },
-  { id: 'i3', recipeId: 'outra', ingredientId: 'cacau', quantity: 999 },
+});
+const items = [
+  recipeItem({ recipeId: 'r1', ingredientId: 'leite', quantity: 790 }),
+  recipeItem({ recipeId: 'r1', ingredientId: 'cacau', quantity: 100 }),
+  recipeItem({ recipeId: 'r1', ingredientId: 'cacau', quantity: 999, deletedAt: 'x' }),
+  recipeItem({ recipeId: 'outra', ingredientId: 'cacau', quantity: 999 }),
 ];
-const ingredientsById = new Map([leite, cacau].map((i) => [i.id, i]));
+const ingredientsById = new Map(ingredients.map((i) => [i.id, i]));
 
 describe('custo', () => {
   it('custo do item = preço pago / embalagem × quantidade', () => {
@@ -50,8 +46,8 @@ describe('custo', () => {
     expect(() => itemCost(ingredient({ packageQty: 0 }), 10)).toThrow();
   });
 
-  it('custo do lote e por unidade', () => {
-    expect(recipeCost(recipe, items, ingredientsById)).toEqual({
+  it('custo do lote e por unidade (ignora itens apagados)', () => {
+    expect(recipeCost(tradicional, items, ingredientsById)).toEqual({
       ingredientsCost: 1950, // 1200 + 750
       batchCost: 4250, // 1950 + 2000 + 300
       unitCost: 227.5, // 4250 / 20 + 15
@@ -59,29 +55,27 @@ describe('custo', () => {
   });
 
   it('recusa rendimento 0 e ingrediente que sumiu', () => {
-    expect(() => recipeCost({ ...recipe, yield: 0 }, items, ingredientsById)).toThrow();
-    expect(() => recipeCost(recipe, items, new Map())).toThrow();
+    expect(() => recipeCost({ ...tradicional, yield: 0 }, items, ingredientsById)).toThrow();
+    expect(() => recipeCost(tradicional, items, new Map())).toThrow();
   });
 });
 
-describe('margem, preço e markup', () => {
-  it('custo R$4 com 50% de margem dá preço R$8 (markup 100%)', () => {
+describe('margem, preço, markup e lucro por unidade', () => {
+  it('custo R$4 com 50% de margem dá preço R$8 (markup 100%, lucro R$4)', () => {
     expect(priceForMargin(400, 0.5)).toBe(800);
     expect(marginForPrice(800, 400)).toBe(0.5);
     expect(markupForPrice(800, 400)).toBe(1);
+    expect(unitProfit(800, 400)).toBe(400);
   });
 
   it('arredonda só o preço final', () => {
-    // 227,5 / 0,7 = 325
     expect(priceForMargin(227.5, 0.3)).toBe(325);
-    // 100 / 0,7 = 142,857… → 143
-    expect(priceForMargin(100, 0.3)).toBe(143);
+    expect(priceForMargin(100, 0.3)).toBe(143); // 142,857…
   });
 
   it('margem e preço se convertem nos dois sentidos', () => {
-    const cost = 227.5;
-    const price = priceForMargin(cost, 0.45);
-    expect(marginForPrice(price, cost)).toBeCloseTo(0.45, 2);
+    const price = priceForMargin(227.5, 0.45);
+    expect(marginForPrice(price, 227.5)).toBeCloseTo(0.45, 2);
   });
 
   it('margem fora de 0–99% é recusada', () => {
@@ -99,32 +93,47 @@ describe('margem, preço e markup', () => {
   });
 });
 
-describe('aviso de margem abaixo da meta', () => {
-  const product = (priceCents: number): Product => ({
-    id: 'brownie',
-    name: 'Brownie',
-    kind: 'baked',
-    code: 'B',
-    priceCents,
-    active: true,
+describe('custo do produto com vários sabores', () => {
+  const ninho = recipe({ id: 'r2', productId: OTHER, name: 'Ninho', yield: 10 });
+  const ninhoItems = [recipeItem({ recipeId: 'r2', ingredientId: 'leite', quantity: 395 })]; // 600 / 10 = 60
+
+  it('é a média dos sabores ativos', () => {
+    // (227,5 + 60) / 2
+    expect(productUnitCost(OTHER, [tradicional, ninho], [...items, ...ninhoItems], ingredients)).toBe(143.75);
   });
 
+  it('ignora sabores inativos ou apagados', () => {
+    const recipes = [tradicional, { ...ninho, active: false }];
+    expect(productUnitCost(OTHER, recipes, [...items, ...ninhoItems], ingredients)).toBe(227.5);
+    expect(productUnitCost(OTHER, [{ ...tradicional, deletedAt: 'x' }], items, ingredients)).toBeNull();
+  });
+
+  it('sem receita não calcula', () => {
+    expect(productUnitCost(P, [tradicional], items, ingredients)).toBeNull();
+    const map = unitCostByProduct([product({ id: P }), product({ id: OTHER })], [tradicional], items, ingredients);
+    expect(map.get(OTHER)).toBe(227.5);
+    expect(map.has(P)).toBe(false);
+  });
+});
+
+describe('aviso de margem abaixo da meta, por sabor', () => {
+  const brownie = (priceCents: number) => product({ id: OTHER, name: 'Brownie', priceCents });
+
   it('não avisa quando a margem está na meta', () => {
-    // custo 227,5; preço 500 → margem 54,5%
-    expect(productsBelowTarget([product(500)], [recipe], items, [leite, cacau])).toEqual([]);
+    expect(recipesBelowTarget([brownie(500)], [tradicional], items, ingredients)).toEqual([]);
   });
 
   it('avisa quando o ingrediente sobe e a margem cai', () => {
     const caro = { ...cacau, pricePaidCents: 6000 }; // 100 g passam a custar 3000
     // lote = 1200 + 3000 + 2300 = 6500 → unidade = 325 + 15 = 340; margem a R$5 = 32%
-    const alerts = productsBelowTarget([product(500)], [recipe], items, [leite, caro]);
+    const alerts = recipesBelowTarget([brownie(500)], [tradicional], items, [leite, caro]);
     expect(alerts).toHaveLength(1);
-    expect(alerts[0]).toMatchObject({ productId: 'brownie', unitCost: 340, priceCents: 500, targetMargin: 0.5 });
+    expect(alerts[0]).toMatchObject({ productId: OTHER, recipeName: 'Tradicional', unitCost: 340, priceCents: 500 });
     expect(alerts[0]!.margin).toBeCloseTo(0.32, 5);
   });
 
-  it('avisa produto ainda sem preço', () => {
-    const alerts = productsBelowTarget([product(0)], [recipe], items, [leite, cacau]);
+  it('avisa sabor de produto ainda sem preço', () => {
+    const alerts = recipesBelowTarget([brownie(0)], [tradicional], items, ingredients);
     expect(alerts[0]?.margin).toBeNull();
   });
 });

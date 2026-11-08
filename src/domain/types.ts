@@ -3,61 +3,67 @@
 export type ID = string; // crypto.randomUUID()
 export type Cents = number; // inteiro, sempre centavos
 export type LocalDate = string; // 'YYYY-MM-DD' no fuso do aparelho
+export type MonthKey = string; // 'YYYY-MM'
 
-export type ProductKind = 'ice_pop' | 'baked';
-export interface Product {
+/** Todo registro estende Base (pronto para sincronizar na v2). Nunca apagar: marcar deletedAt. */
+export interface Base {
   id: ID;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
+}
+
+export interface Category extends Base {
   name: string;
-  kind: ProductKind;
+  order: number;
+}
+
+export interface Product extends Base {
+  categoryId: ID;
+  name: string;
   code: string;
   priceCents: Cents;
   active: boolean;
 }
 
 export type SalesPointMode = 'direct' | 'consignment';
-export interface SalesPoint {
-  id: ID;
+export interface SalesPoint extends Base {
   name: string;
   mode: SalesPointMode;
   active: boolean;
 }
 
-export interface Production {
-  id: ID;
-  date: LocalDate;
+/** Fechamento da semana: uma linha por produto por semana. */
+export interface WeekClose extends Base {
+  weekStart: LocalDate; // segunda
   productId: ID;
-  quantity: number;
+  produced: number;
   loss: number;
+  soldDirect: number;
+  valueCents: Cents; // soldDirect × preço, editável
   note?: string;
-  createdAt: string;
 }
 
-export type SaleOrigin = 'direct' | 'settlement' | 'import';
-export interface Sale {
-  id: ID;
+export type SaleOrigin = 'week_close' | 'settlement' | 'import';
+export interface Sale extends Base {
   date: LocalDate;
-  time?: string;
   pointId: ID;
   productId: ID;
   quantity: number;
   valueCents: Cents;
   origin: SaleOrigin;
+  weekCloseId?: ID;
   settlementId?: ID;
-  note?: string;
-  createdAt: string;
 }
 
-export interface Delivery {
-  id: ID;
+export interface Delivery extends Base {
   date: LocalDate;
   pointId: ID;
   productId: ID;
   quantity: number;
-  createdAt: string;
 }
 
-export interface Settlement {
-  id: ID;
+export interface Settlement extends Base {
   date: LocalDate;
   pointId: ID;
   productId: ID;
@@ -67,12 +73,10 @@ export interface Settlement {
   valueCents: Cents;
   paid: boolean;
   paidDate?: LocalDate;
-  createdAt: string;
 }
 
 export type StockLocation = 'home' | 'consignment';
-export interface StockAdjustment {
-  id: ID;
+export interface StockAdjustment extends Base {
   date: LocalDate;
   productId: ID;
   location: StockLocation;
@@ -82,50 +86,54 @@ export interface StockAdjustment {
   note?: string;
 }
 
-export interface ExpenseCategory {
-  id: ID;
+export interface ExpenseCategory extends Base {
   name: string;
+  /** true: Ingredientes e Embalagens (já entram no custo dos produtos). */
+  isProductCost: boolean;
 }
 
-export interface Expense {
-  id: ID;
+export interface Expense extends Base {
   date: LocalDate;
   valueCents: Cents;
   categoryId: ID;
   description?: string;
-  createdAt: string;
 }
 
-export interface PersonalExpense {
-  id: ID;
+export interface PersonalExpense extends Base {
   date: LocalDate;
   valueCents: Cents;
   description?: string;
-  createdAt: string;
+}
+
+export interface MonthlyGoal extends Base {
+  month: MonthKey;
+  revenueCents?: Cents;
+  profitCents?: Cents;
 }
 
 export type Unit = 'g' | 'ml' | 'un';
-export interface Ingredient {
-  id: ID;
+export interface Ingredient extends Base {
   name: string;
   pricePaidCents: Cents;
   packageQty: number; // na unidade base (g, ml ou un)
   unit: Unit;
-  updatedAt: string;
 }
 
-export interface Recipe {
-  id: ID;
+/** Receita = um sabor de um produto. */
+export interface Recipe extends Base {
   productId: ID;
+  name: string;
   yield: number;
   packagingPerUnitCents: Cents;
   laborPerBatchCents: Cents;
   otherCostsPerBatchCents: Cents;
   targetMargin: number; // 0–1
+  preparation?: string;
+  notes?: string;
+  active: boolean;
 }
 
-export interface RecipeItem {
-  id: ID;
+export interface RecipeItem extends Base {
   recipeId: ID;
   ingredientId: ID;
   quantity: number; // na unidade do ingrediente

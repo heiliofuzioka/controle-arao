@@ -1,0 +1,51 @@
+.notice {
+  min-height: 56px;
+  padding: var(--espaco-12) var(--espaco-16);
+  border-radius: var(--raio-card);
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-12);
+  font-weight: var(--peso-forte);
+}
+
+.text {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.info {
+  background: var(--cor-info-suave);
+  color: var(--cor-acao);
+}
+
+.attention {
+  background: var(--cor-atencao-suave);
+  color: var(--cor-texto-atencao);
+}
+
+.success {
+  background: var(--cor-sucesso);
+  color: var(--cor-texto-sobre-solido);
+}
+
+.error {
+  background: var(--cor-erro);
+  color: var(--cor-texto-sobre-solido);
+}
+
+.action {
+  min-height: var(--toque-minimo);
+  margin: calc(-1 * var(--espaco-8)) 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--cor-acao);
+  font-weight: var(--peso-forte);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.success .action,
+.error .action {
+  color: inherit;
+}

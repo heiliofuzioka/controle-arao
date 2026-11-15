@@ -1,11 +1,11 @@
 import { HashRouter, Route, Routes } from 'react-router-dom';
-import { HelloPage } from './features/home/HelloPage';
+import { HomePage } from './features/home/HomePage';
 
 export function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="*" element={<HelloPage />} />
+        <Route path="*" element={<HomePage />} />
       </Routes>
     </HashRouter>
   );

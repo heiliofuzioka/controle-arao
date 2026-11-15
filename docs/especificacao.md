@@ -198,7 +198,8 @@ A UI aceita kg e L, mas grava em g e ml (`packageQty` e `quantity` ficam na unid
 - Uma folha "Fechar a semana" com um card por produto. Em cada card: **Produziu**, **Vendeu na mão** e **Perdeu** (opcional), em passos de − / +; o card mostra o faturamento da venda na mão (vendidos × preço, editável para desconto) e quanto ficou em casa (já descontando o que foi levado ao Açougue).
 - No fim da folha: total da venda na mão da semana e o aviso de que as vendas do Açougue entram pelo acerto.
 - **Erro:** vender mais do que tinha em casa (estoque do início da semana + produzido − perdido − entregue) bloqueia o salvar e marca o card em vermelho com a conta ("Tinha 2 em casa + 10 feitos = 12") e o aviso "Vendeu mais do que tinha (12). Confira os números.".
-- A semana vai de segunda a domingo; o fechamento vem marcado com a semana atual, e dá para escolher outra.
+- A semana vai de segunda a domingo; o fechamento vem marcado com a semana atual, e dá para escolher outra (só a atual e as anteriores; semanas futuras ficam bloqueadas).
+- **Desconto:** tocar no valor "Venda na mão" do card abre o campo para digitar outro valor (decidido em 15/11). Mudar a quantidade vendida volta o valor para vendidos × preço; sem preço cadastrado, o valor digitado fica.
 - Salvar cria/atualiza o `WeekClose` de cada produto e uma `Sale` com `origin: 'week_close'` na data do **domingo** da semana, numa única transação Dexie. Fechar de novo a mesma semana edita, não duplica.
 - Entregas e acertos do Açougue continuam separados, nas datas em que acontecem.
 
@@ -335,8 +336,7 @@ Critério de validação de agosto:
 - **Colunas do Painel nos filtros "Mês" e "2 meses":** hoje por semana; confirmar com o Augusto.
 - **Custo do produto com vários sabores:** hoje é a média das receitas ativas; confirmar se o Arão prefere escolher um sabor de referência.
 - **Logo:** o SVG atual foi vetorizado de uma imagem de 1600px. Se o designer tiver o arquivo vetorial original (AI, SVG ou PDF), trocar os arquivos de `public/brand/` mantendo os nomes e as partes separadas (letras, til, slogan, mascote).
-- **Rótulo do ícone:** conferir no iPhone se "Controle Arão" cabe embaixo do ícone; se cortar, `short_name: 'Arão'`.
-- Preço atual de cada produto.
+- **Preço atual de cada produto** (decidido em 15/11: seguir sem preço por enquanto). Até lá, o fechamento da semana mostra "Sem preço" e o Arão digita o valor da venda na mão tocando no valor do card.
 - Receitas dos sabores: ingredientes, quantidades, rendimento e preço pago em cada ingrediente.
 - Valor da diária da avó e quantos lotes ela ajuda a fazer por dia.
 - Frequência do acerto com o Açougue.

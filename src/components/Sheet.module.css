@@ -1,0 +1,117 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: max(var(--area-segura-topo), var(--espaco-12));
+  background: var(--cor-texto);
+  animation: fundo-aparece 200ms ease-out;
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 100%;
+  background: var(--cor-fundo-pagina);
+  border-radius: var(--raio-folha) var(--raio-folha) 0 0;
+  box-shadow: var(--sombra-barra);
+  animation: folha-sobe 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.full {
+  flex: 1 1 0;
+}
+
+.header {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-8);
+  padding: var(--espaco-8) calc(var(--margem-pagina) + var(--area-segura-direita)) 0
+    calc(var(--margem-pagina) + var(--area-segura-esquerda));
+}
+
+.grabber {
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--cor-fundo-recuo);
+}
+
+.titleRow {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-8);
+}
+
+.title {
+  flex: 1 1 0;
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+}
+
+.close {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0;
+  background: var(--cor-fundo-recuo);
+  color: var(--cor-texto);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-16);
+  padding: var(--espaco-8) calc(var(--margem-pagina) + var(--area-segura-direita)) var(--espaco-8)
+    calc(var(--margem-pagina) + var(--area-segura-esquerda));
+}
+
+.footer {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+  padding: var(--espaco-12) calc(var(--margem-pagina) + var(--area-segura-direita))
+    max(var(--area-segura-base), var(--espaco-16)) calc(var(--margem-pagina) + var(--area-segura-esquerda));
+}
+
+@keyframes folha-sobe {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fundo-aparece {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .sheet {
+    animation: none;
+  }
+}

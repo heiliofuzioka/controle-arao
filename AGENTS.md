@@ -125,8 +125,7 @@ Regra: **cálculo nunca mora em componente.** As telas leem do Dexie e chamam fu
 - **Colunas do Painel nos filtros "Mês" e "2 meses":** hoje por semana; confirmar com o Augusto.
 - **Custo do produto com vários sabores:** hoje é a média das receitas ativas; confirmar se o Arão prefere escolher um sabor de referência.
 - **Logo:** o SVG atual foi vetorizado de uma imagem de 1600px. Se o designer tiver o arquivo vetorial original (AI, SVG ou PDF), trocar os arquivos de `public/brand/` mantendo os nomes e as partes separadas (letras, til, slogan, mascote).
-- **Rótulo do ícone:** conferir no iPhone se "Controle Arão" cabe embaixo do ícone; se cortar, `short_name: 'Arão'`.
-- Preço atual de cada produto.
+- **Preço atual de cada produto** (decidido em 15/11: seguir sem preço por enquanto). Até lá, o fechamento da semana mostra "Sem preço" e o Arão digita o valor da venda na mão tocando no valor do card.
 - Receitas dos sabores: ingredientes, quantidades, rendimento e preço pago em cada ingrediente.
 - Valor da diária da avó e quantos lotes ela ajuda a fazer por dia.
 - Frequência do acerto com o Açougue.

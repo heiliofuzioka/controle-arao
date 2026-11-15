@@ -1,0 +1,167 @@
+/* ── Seletor de semana ── */
+.weekPicker {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: var(--espaco-4);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-fundo-card);
+}
+
+.weekButton {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0;
+  background: var(--cor-fundo-recuo);
+  color: var(--cor-texto);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weekButton:disabled {
+  opacity: 0.4;
+}
+
+.weekLabel {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-weight: var(--peso-forte);
+}
+
+/* ── Card do fechamento ── */
+.card {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-12);
+  padding: 12px 14px;
+  border: 2px solid transparent;
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo-card);
+}
+
+.cardInvalid {
+  border-color: var(--cor-erro);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-12);
+}
+
+.cardName {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.name {
+  font-weight: var(--peso-forte);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.price,
+.valueLabel {
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  font-weight: var(--peso-texto);
+  color: var(--cor-texto-secundario);
+}
+
+/* "Venda na mão" + valor: o bloco inteiro é o alvo do toque (44px). */
+.value {
+  flex: none;
+  min-height: var(--toque-minimo);
+  border: 0;
+  padding: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.valueNumber,
+.valueInput {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+  color: var(--cor-texto);
+  text-align: right;
+}
+
+.valueInput {
+  width: 112px;
+  height: var(--tipo-secao-linha);
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0 2px 0 var(--cor-acao);
+  outline: 0;
+  padding: 0;
+  background: none;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espaco-8);
+}
+
+.lossRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--espaco-12);
+}
+
+.note {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-bottom: var(--espaco-12);
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}
+
+/* ── Total da semana ── */
+.total {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  padding: var(--espaco-16);
+  border-radius: var(--raio-card);
+  background: var(--cor-acao);
+}
+
+.totalLabel {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-sobre-acao-secundario);
+}
+
+.totalValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero-grande);
+  line-height: var(--tipo-numero-grande-linha);
+  letter-spacing: var(--aperto-titulo);
+  color: var(--cor-texto-sobre-acao);
+}
+
+.footnote {
+  flex: none;
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}

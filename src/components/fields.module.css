@@ -1,0 +1,200 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+  min-width: 0;
+}
+
+.label {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto);
+}
+
+/* ── Campo de valor ── */
+.moneyBox {
+  height: 64px;
+  border-radius: var(--raio-card);
+  border: 2px solid transparent;
+  background: var(--cor-fundo-card);
+  padding: 0 var(--espaco-16);
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-8);
+}
+
+.moneyBox:focus-within {
+  border-color: var(--cor-acao);
+}
+
+.currency {
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+  color: var(--cor-texto-secundario);
+}
+
+.moneyInput {
+  flex: 1 1 0;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  background: transparent;
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero);
+  line-height: var(--tipo-numero-linha);
+  letter-spacing: var(--aperto-numero);
+  color: var(--cor-texto);
+}
+
+.moneyInput::placeholder,
+.textInput::placeholder {
+  color: var(--cor-texto-secundario);
+  opacity: 0.6;
+}
+
+.moneyBox.invalid,
+.moneyBox.invalid:focus-within {
+  border-color: var(--cor-erro);
+}
+
+.moneyBox.invalid .moneyInput {
+  color: var(--cor-erro);
+}
+
+/* ── Campo de texto ── */
+.textInput {
+  height: 64px;
+  border-radius: var(--raio-card);
+  border: 2px solid transparent;
+  outline: 0;
+  background: var(--cor-fundo-card);
+  padding: 0 var(--espaco-16);
+  font-weight: var(--peso-texto);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+  color: var(--cor-texto);
+}
+
+.textInput:focus {
+  border-color: var(--cor-acao);
+}
+
+/* ── Linha de erro ── */
+.errorLine {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-8);
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-erro);
+}
+
+/* ── Data ── */
+.dateLine {
+  position: relative;
+  align-self: flex-start;
+  min-height: var(--toque-minimo);
+  margin: calc(-1 * var(--espaco-8)) 0;
+  display: flex;
+  align-items: center;
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}
+
+/* O campo de data fica invisível por cima do texto: o toque abre o calendário do iPhone. */
+.dateInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  font-size: var(--tipo-campo-minimo);
+}
+
+/* ── Passo ── */
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  min-width: 0;
+}
+
+.compact {
+  width: 124px;
+  flex: none;
+}
+
+.stepperLabel {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  color: var(--cor-texto-secundario);
+}
+
+.stepperBox {
+  height: 52px;
+  border-radius: var(--raio-campo);
+  border: 2px solid transparent;
+  background: var(--cor-fundo-pagina);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stepperBox.invalid {
+  border-color: var(--cor-erro);
+}
+
+.stepButton {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0;
+  background: var(--cor-fundo-recuo);
+  color: var(--cor-texto);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepButton:disabled {
+  opacity: 0.45;
+}
+
+.stepperInput {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+  height: 44px;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  background: transparent;
+  text-align: center;
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+  color: var(--cor-texto);
+  border-radius: var(--espaco-8);
+}
+
+.stepperInput:focus {
+  background: var(--cor-fundo-card);
+}
+
+.stepperBox.invalid .stepperInput {
+  color: var(--cor-erro);
+}

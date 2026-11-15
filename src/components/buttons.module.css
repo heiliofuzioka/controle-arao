@@ -1,0 +1,109 @@
+/* Botão grande: pílula de 56px */
+.big {
+  height: var(--altura-botao);
+  width: 100%;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0 var(--espaco-24);
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.primary {
+  background: var(--cor-acao);
+  color: var(--cor-texto-sobre-acao);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--cor-acao-pressionada);
+}
+
+.secondary {
+  background: var(--cor-fundo-card);
+  color: var(--cor-acao);
+}
+
+.danger {
+  background: var(--cor-erro-suave);
+  color: var(--cor-erro);
+}
+
+.big:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Atalho: pílula de 56px com ícone num círculo */
+.shortcut {
+  min-width: 0;
+  height: var(--altura-botao);
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: var(--espaco-8) var(--espaco-16) var(--espaco-8) var(--espaco-8);
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-8);
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.shortcutIcon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--raio-pilula);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cor-info-suave);
+  color: var(--cor-acao);
+}
+
+.shortcutLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.highlight {
+  background: var(--cor-acao);
+  color: var(--cor-texto-sobre-acao);
+}
+
+.highlight .shortcutIcon {
+  background: var(--cor-acao-pressionada);
+  color: var(--cor-texto-sobre-acao);
+}
+
+/* Botão de escolha (categorias): pílula de 44px */
+.choice {
+  height: var(--altura-botao-compacto);
+  min-width: 0;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0 10px;
+  background: var(--cor-fundo-card);
+  color: var(--cor-acao);
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.choice[aria-pressed='true'] {
+  background: var(--cor-acao);
+  color: var(--cor-texto-sobre-acao);
+}

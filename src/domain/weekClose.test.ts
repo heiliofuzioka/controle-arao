@@ -27,14 +27,16 @@ describe('conferir o card do fechamento', () => {
   it('bloqueia vender mais do que tinha, com a conta', () => {
     const r = checkWeekClose(data, { ...input, soldDirect: 13 });
     expect(r.ok).toBe(false);
-    expect(r.error).toBe('Tinha 2 em casa + 10 feitos = 12. Vendeu 13.');
+    expect(r.error).toBe('Vendeu mais do que tinha (12). Confira os números.');
+    expect(r.explanation).toBe('Tinha 2 em casa + 10 feitos = 12');
   });
 
   it('desconta perdas e o que foi levado ao Açougue na semana', () => {
     const d = { ...data, deliveries: [delivery({ date: '2026-11-11', quantity: 4 }), delivery({ date: '2026-11-20', quantity: 50 })] };
     const r = checkWeekClose(d, { ...input, loss: 1, soldDirect: 8 });
     expect(r).toMatchObject({ ok: false, startStock: 2, delivered: 4, available: 7, leftover: -1 });
-    expect(r.error).toBe('Tinha 2 em casa + 10 feitos − 1 perdido − 4 no Açougue = 7. Vendeu 8.');
+    expect(r.error).toBe('Vendeu mais do que tinha (7). Confira os números.');
+    expect(r.explanation).toBe('Tinha 2 em casa + 10 feitos − 1 perdido − 4 no Açougue = 7');
   });
 
   it('entrega de semana anterior já saiu do estoque do começo', () => {

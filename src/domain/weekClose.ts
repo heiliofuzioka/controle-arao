@@ -22,7 +22,10 @@ export interface WeekCloseCheck {
   available: number;
   /** Ficou em casa no fim da semana. */
   leftover: number;
+  /** Aviso em vermelho do card. */
   error?: string;
+  /** A conta que acompanha o erro de vender demais: "Tinha 2 em casa + 10 feitos = 12". */
+  explanation?: string;
 }
 
 const isCount = (n: number) => Number.isSafeInteger(n) && n >= 0;
@@ -52,7 +55,14 @@ export function checkWeekClose(data: StockData, input: WeekCloseInput, existingI
   if (!isCount(produced)) return { ...result, ok: false, error: 'O que foi feito precisa ser um número inteiro, 0 ou mais.' };
   if (!isCount(soldDirect)) return { ...result, ok: false, error: 'O que foi vendido precisa ser um número inteiro, 0 ou mais.' };
   if (!isCount(loss)) return { ...result, ok: false, error: 'A perda precisa ser um número inteiro, 0 ou mais.' };
-  if (leftover < 0) return { ...result, ok: false, error: `${explainAvailable(result, produced, loss)}. Vendeu ${soldDirect}.` };
+  if (leftover < 0) {
+    return {
+      ...result,
+      ok: false,
+      error: `Vendeu mais do que tinha (${available}). Confira os números.`,
+      explanation: explainAvailable(result, produced, loss),
+    };
+  }
   return { ...result, ok: true };
 }
 

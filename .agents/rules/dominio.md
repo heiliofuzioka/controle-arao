@@ -82,7 +82,7 @@ A UI aceita kg e L, mas grava em g e ml (`packageQty` e `quantity` ficam na unid
 
 - Uma folha "Fechar a semana" com um card por produto. Em cada card: **Produziu**, **Vendeu na mão** e **Perdeu** (opcional), em passos de − / +; o card mostra o faturamento da venda na mão (vendidos × preço, editável para desconto) e quanto ficou em casa (já descontando o que foi levado ao Açougue).
 - No fim da folha: total da venda na mão da semana e o aviso de que as vendas do Açougue entram pelo acerto.
-- **Erro:** vender mais do que tinha em casa (estoque do início da semana + produzido − perdido − entregue) bloqueia o salvar e marca o card em vermelho com a conta ("Tinha 2 em casa + 10 feitos = 12").
+- **Erro:** vender mais do que tinha em casa (estoque do início da semana + produzido − perdido − entregue) bloqueia o salvar e marca o card em vermelho com a conta ("Tinha 2 em casa + 10 feitos = 12") e o aviso "Vendeu mais do que tinha (12). Confira os números.".
 - A semana vai de segunda a domingo; o fechamento vem marcado com a semana atual, e dá para escolher outra.
 - Salvar cria/atualiza o `WeekClose` de cada produto e uma `Sale` com `origin: 'week_close'` na data do **domingo** da semana, numa única transação Dexie. Fechar de novo a mesma semana edita, não duplica.
 - Entregas e acertos do Açougue continuam separados, nas datas em que acontecem.
@@ -91,7 +91,8 @@ A UI aceita kg e L, mas grava em g e ml (`packageQty` e `quantity` ficam na unid
 
 - **Semana:** de segunda a domingo (`startOfWeek(d, { weekStartsOn: 1 })`).
 - **Mês:** mês do calendário pela `date` de cada lançamento (fechamentos contam na data do domingo da semana). Considera meses com semanas parciais e com 5 semanas.
-- **Estoque em casa** (por produto) = produzido − perdas − vendidos na mão − entregas ao Açougue + ajustes `home`.
+- **Semanas do mês:** as semanas cujo domingo cai no mês (4 ou 5; a primeira pode começar no mês anterior).
+- **Estoque em casa** (por produto) = produzido − perdas − vendidos na mão − entregas ao Açougue + ajustes `home`. Fechamentos importados do caderno **não entram** (o caderno só anota vendas, não a produção; confirmado em 08/11).
 - **Estoque no Açougue** (por produto) = entregas − vendidos nos acertos − perdas nos acertos + ajustes `consignment`.
 - **Sobrou na semana** (por produto) = estoque em casa no fim da semana.
 - **Acerto:**
@@ -100,6 +101,7 @@ A UI aceita kg e L, mas grava em g e ml (`packageQty` e `quantity` ficam na unid
   - Salvar o acerto cria uma `Sale` com `origin: 'settlement'` na data do acerto, numa única transação Dexie.
 - **A receber** = soma de `valueCents` dos acertos com `paid: false`. O botão "Recebi" marca `paid` e grava `paidDate`.
 - **Faturamento** = soma das `Sale.valueCents` do período.
+- **Já recebido** = venda direta + vendas importadas + vendas de acertos já pagos (confirmado em 08/11). O resto do faturamento é o que falta receber.
 - **Saldo** (resultado financeiro simplificado) = faturamento − despesas.
 - **Custo de um produto por unidade** = média do custo por unidade das receitas ativas daquele produto (sem receita: não calcula, e as telas avisam "cadastre a receita").
 - **Lucro estimado** = faturamento − (custo por unidade × unidades vendidas, por produto) − despesas de categorias com `isProductCost: false`. **Não descontar** Ingredientes e Embalagens de novo, porque já estão no custo dos produtos (evita contar duas vezes).
@@ -111,7 +113,7 @@ A UI aceita kg e L, mas grava em g e ml (`packageQty` e `quantity` ficam na unid
 
 Ordem (em pé, rolando): cabeçalho → "Sobrou no período" → filtro → três cards → **metas do mês** → gráfico de ondas → gráfico de colunas → botões "Fechamento do mês" e "Ver o ano". Ao rolar, o filtro fica preso no topo.
 
-- **Filtro de período:** Semana · Mês · 2 meses · 6 meses · Ano. Muda o número grande, os três cards e os dois gráficos.
+- **Filtro de período:** Semana · Mês · 2 meses · 6 meses · Ano. Muda o número grande, os três cards e os dois gráficos. Intervalos: semana atual; mês atual; mês anterior + atual; últimos 6 meses (com o atual); ano do calendário (jan–dez). *(Escolha do código, a confirmar.)*
 - **Número grande:** "Sobrou no período".
 - **Três cards, nesta ordem:** Faturamento (anel: % já recebido), Despesas (anel: % do faturamento), Lucro estimado (anel: margem).
 - **Metas do mês:** duas barras (faturamento e lucro estimado) com alcançado, % e quanto falta. Sem meta cadastrada: link "Definir meta".
@@ -136,7 +138,7 @@ lucro por unidade   = preço − custo por unidade
 - Margem e preço ligados nos dois sentidos: editar um recalcula o outro. Mostrar margem, markup e lucro por unidade lado a lado (margem é sobre o preço, não acréscimo sobre o custo).
 - Arredondar só na exibição e no preço final.
 - A mão de obra por lote é a diária da avó dividida pelos lotes feitos no dia; o Arão informa na receita.
-- Quando o preço de um ingrediente muda, todas as receitas se recalculam. Avisar quais sabores ficaram abaixo de `targetMargin`.
+- Quando o preço de um ingrediente muda, todas as receitas se recalculam. Avisar quais sabores ficaram abaixo de `targetMargin`. Sabor de produto ainda sem preço também entra no aviso (confirmado em 08/11).
 - "Aplicar preço" atualiza o `Product.priceCents`, só depois de confirmação. Como o preço é por produto e há vários sabores, mostrar o preço sugerido de cada sabor e deixar o Arão escolher o preço do produto.
 
 ## Dados históricos

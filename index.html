@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#F4F2ED" />
+    <meta name="theme-color" content="#FDEBD7" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Controle Arão" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="brand/icone.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="brand/icone-180.png" />
     <!-- Imagens paradas de abertura do iPhone (geradas em 15/11/2026). Lista original: docs/referencias/startup-links.html -->
     <!-- iPhone SE 2ª e 3ª geração, 8 · em pé -->
     <link rel="apple-touch-startup-image" href="brand/splash/abertura-750x1334.png" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
@@ -56,6 +56,12 @@
     <!-- iPhone 16 Pro Max, 17 Pro Max · deitado -->
     <link rel="apple-touch-startup-image" href="brand/splash/abertura-2868x1320.png" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
     <title>Controle Arão</title>
+    <!-- Mesmo creme da imagem de abertura, para não piscar branco antes de o app carregar. -->
+    <style>
+      html {
+        background: #fdebd7;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

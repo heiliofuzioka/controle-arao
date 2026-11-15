@@ -22,8 +22,11 @@ export function HelloPage() {
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>Olá, Arão!</h1>
-      <p>O Controle Arão está funcionando.</p>
+      <header className={styles.header}>
+        <img className={styles.mascot} src={`${import.meta.env.BASE_URL}brand/arao-mascote-azul.svg`} alt="" />
+        <h1 className={styles.title}>Olá, Arão!</h1>
+      </header>
+      <p className={styles.lead}>O Controle Arão está funcionando.</p>
 
       <section className={styles.card}>
         <div className={styles.status}>
@@ -43,7 +46,7 @@ export function HelloPage() {
         </div>
       </section>
 
-      <p className={styles.hint}>Versão {__APP_VERSION__}</p>
+      <p className={styles.version}>Versão {__APP_VERSION__}</p>
     </main>
   );
 }

@@ -12,7 +12,6 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['apple-touch-icon.png', 'favicon.svg'],
       manifest: {
         name: 'Controle Arão',
         short_name: 'Controle Arão',
@@ -21,16 +20,18 @@ export default defineConfig({
         start_url: '/controle-arao/',
         scope: '/controle-arao/',
         display: 'standalone',
-        background_color: '#F4F2ED',
+        background_color: '#FDEBD7', // creme da imagem de abertura
         theme_color: '#F4F2ED',
         icons: [
-          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'brand/icone-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'brand/icone-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'brand/icone-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff2}'],
+        // As imagens de abertura são lidas pelo iOS na instalação; não precisam ir para o pacote offline.
+        globIgnores: ['brand/splash/**', 'brand/icone-1024.png', 'brand/icone-maskable.svg'],
         navigateFallback: 'index.html',
       },
     }),

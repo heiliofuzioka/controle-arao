@@ -1,36 +1,113 @@
-/* Tokens PROVISÓRIOS com a paleta aprovada. Os nomes definitivos vêm do canvas no passo 4. */
+/*
+ * Tokens do design do Controle Arão.
+ * Valores tirados de docs/telas (quadro "Fundamentos e componentes" e o HTML das telas).
+ * Regras de uso: .agents/rules/design.md
+ */
 :root {
-  --color-bg: #F4F2ED;
-  --color-surface: #FFFFFF;
-  --color-text: #1B3270;
-  --color-text-muted: #4F5B80;
-  --color-primary: #244C9A;
-  --color-primary-contrast: #FDEDCB;
-  --color-success: #1E6B4E;
-  --color-danger: #B42318;
-  --color-border: transparent;
+  /* ── Cores claras (todas as telas, menos o Painel) ── */
+  --cor-fundo-pagina: #f4f2ed;
+  --cor-fundo-card: #ffffff;
+  --cor-fundo-recuo: #ece8df; /* botões redondos, trilho da barra de meta, contadores */
+  --cor-acao: #244c9a;
+  --cor-acao-pressionada: #1c3d7e;
+  --cor-texto-sobre-acao: #fdedcb;
+  --cor-texto-sobre-acao-secundario: #c8d3ee;
+  --cor-texto: #1b3270;
+  --cor-texto-secundario: #4f5b80;
+  --cor-texto-inativo: #736d60; /* abas não selecionadas */
+  --cor-sucesso: #1e6b4e;
+  --cor-erro: #b42318;
+  --cor-erro-suave: #fbe1dd;
+  --cor-atencao-suave: #fbe7c2;
+  --cor-texto-atencao: #8a5300;
+  --cor-info-suave: #e2e8f4;
+  --cor-texto-sobre-solido: #ffffff; /* sobre sucesso e erro */
 
-  --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-  --font-size-base: 17px; /* mínimo 16px em inputs para o iOS não dar zoom */
-  --font-size-sm: 15px;
-  --font-size-lg: 20px;
-  --font-size-xl: 28px;
+  /* ── Sigla de cada produto (fundo e letra) ── */
+  --cor-produto-gelinho-fundo: #e2e8f4;
+  --cor-produto-gelinho-texto: #244c9a;
+  --cor-produto-brownie-fundo: #f1e4d6;
+  --cor-produto-brownie-texto: #5c3a21;
+  --cor-produto-recheado-fundo: #fbe7c2;
+  --cor-produto-recheado-texto: #8a5300;
+  --cor-produto-torta-fundo: #f6e0e6;
+  --cor-produto-torta-texto: #8a2f4a;
 
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
+  /* ── Logo (abertura e boas-vindas) ── */
+  --cor-marca-azul: #1a4594;
+  --cor-marca-creme: #fdebd7;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  /* ── Painel escuro e gráficos ── */
+  --cor-painel-fundo: #0e1c3d;
+  --cor-painel-card: #16295a;
+  --cor-painel-trilho: #24407e;
+  --cor-painel-texto: #ffffff;
+  --cor-painel-texto-secundario: #afc0e6;
+  --cor-grafico-faturamento: #7fa2f0;
+  --cor-grafico-lucro: #6fd0a4;
+  --cor-grafico-despesa: #f2b652;
+  --cor-grafico-brownie: #d9a577;
+  --cor-grafico-torta: #e8a0b8;
+  --cor-grafico-gelinho: #9db8f2;
 
-  --touch-min: 44px;
+  /* ── Tipografia: Fredoka para títulos e números, Nunito para o resto ── */
+  --fonte-titulo: 'Fredoka', 'Nunito', sans-serif;
+  --fonte-texto: 'Nunito', system-ui, sans-serif;
 
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
+  --peso-texto: 600;
+  --peso-rotulo: 700;
+  --peso-forte: 800;
+  --peso-titulo: 600; /* Fredoka */
+
+  /* tamanho / altura da linha */
+  --tipo-numero-grande: 44px; /* Fredoka */
+  --tipo-numero-grande-linha: 46px;
+  --tipo-titulo: 34px; /* Fredoka */
+  --tipo-titulo-linha: 38px;
+  --tipo-numero: 28px; /* Fredoka */
+  --tipo-numero-linha: 32px;
+  --tipo-secao: 20px; /* Fredoka nos títulos de folha e card; Nunito forte nas seções */
+  --tipo-secao-linha: 26px;
+  --tipo-texto: 17px;
+  --tipo-texto-linha: 24px;
+  --tipo-rotulo: 15px;
+  --tipo-rotulo-linha: 20px;
+  --tipo-detalhe: 13px;
+  --tipo-detalhe-linha: 18px;
+  --tipo-campo-minimo: 16px; /* abaixo disso o iOS dá zoom no campo */
+
+  --aperto-titulo: -0.02em; /* letter-spacing em 44 e 34 */
+  --aperto-numero: -0.01em; /* letter-spacing em 28 */
+
+  /* ── Espaço ── */
+  --espaco-2: 2px;
+  --espaco-4: 4px;
+  --espaco-6: 6px;
+  --espaco-8: 8px;
+  --espaco-12: 12px;
+  --espaco-16: 16px;
+  --espaco-24: 24px;
+  --espaco-32: 32px;
+  --espaco-48: 48px;
+  --margem-pagina: 16px;
+
+  /* ── Raio ── */
+  --raio-card: 20px;
+  --raio-campo: 16px;
+  --raio-folha: 28px; /* só os cantos de cima */
+  --raio-pilula: 999px;
+
+  /* ── Medidas de toque ── */
+  --altura-botao: 56px;
+  --altura-botao-compacto: 44px; /* categorias e passos */
+  --toque-minimo: 44px;
+
+  /* ── Sombra: só na barra de abas e nas folhas ── */
+  --sombra-barra: 0 -2px 12px rgba(27, 50, 112, 0.08);
+
+  /* ── Áreas seguras do iPhone ── */
+  --area-segura-topo: env(safe-area-inset-top, 0px);
+  --area-segura-direita: env(safe-area-inset-right, 0px);
+  --area-segura-base: env(safe-area-inset-bottom, 0px);
+  --area-segura-esquerda: env(safe-area-inset-left, 0px);
 }

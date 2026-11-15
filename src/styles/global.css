@@ -14,12 +14,21 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-family);
-  font-size: var(--font-size-base);
-  line-height: 1.4;
+  background: var(--cor-fundo-pagina);
+  color: var(--cor-texto);
+  font-family: var(--fonte-texto);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+  font-weight: var(--peso-texto);
+  -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
 }
 
 input,
@@ -27,15 +36,17 @@ select,
 textarea,
 button {
   font: inherit;
-  font-size: max(16px, 1em);
+  font-size: max(var(--tipo-campo-minimo), 1em);
+  color: inherit;
 }
 
 button {
-  min-height: var(--touch-min);
-  min-width: var(--touch-min);
+  min-height: var(--toque-minimo);
+  min-width: var(--toque-minimo);
 }
 
 #root {
   min-height: 100dvh;
-  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+  padding: var(--area-segura-topo) var(--area-segura-direita) var(--area-segura-base)
+    var(--area-segura-esquerda);
 }

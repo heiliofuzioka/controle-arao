@@ -19,3 +19,8 @@ export function touch<T extends Base>(record: T, changes: Partial<Omit<T, keyof 
 export function softDelete<T extends Base>(record: T, now: string): T {
   return { ...record, deletedAt: now, updatedAt: now };
 }
+
+/** Ordena pela criação (mais antigo primeiro). Não muda a lista original. */
+export function byCreation<T extends Pick<Base, 'createdAt'>>(rows: readonly T[]): T[] {
+  return [...rows].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}

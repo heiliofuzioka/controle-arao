@@ -6,6 +6,13 @@ export function formatCents(cents: Cents): string {
   return brl.format(cents / 100);
 }
 
+const plain = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+/** Só o número, sem "R$": 4200 → "42,00". Para dentro dos campos de valor. */
+export function formatCentsPlain(cents: Cents): string {
+  return plain.format(cents / 100);
+}
+
 /**
  * Lê o que o Arão digitou ("12,50", "12.50", "1.234,56", "R$ 5") e devolve centavos.
  * Devolve null se o texto não for um valor válido (vazio, negativo, mais de 2 casas).

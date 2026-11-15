@@ -1,11 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { formatCents, parseCentsInput } from './money';
+import { formatCents, formatCentsPlain, parseCentsInput } from './money';
 
 describe('formatCents', () => {
   it('formata em reais', () => {
     expect(formatCents(1250)).toMatch(/^R\$\s12,50$/);
     expect(formatCents(274700)).toMatch(/^R\$\s2\.747,00$/);
     expect(formatCents(0)).toMatch(/^R\$\s0,00$/);
+  });
+});
+
+describe('formatCentsPlain', () => {
+  it('formata sem o R$', () => {
+    expect(formatCentsPlain(4200)).toBe('42,00');
+    expect(formatCentsPlain(123456)).toBe('1.234,56');
+    expect(parseCentsInput(formatCentsPlain(123456))).toBe(123456);
   });
 });
 

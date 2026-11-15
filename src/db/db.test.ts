@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto';
 import { afterEach, describe, expect, it } from 'vitest';
+import { byCreation } from '../domain/records';
 import { ControleAraoDB } from './db';
 
 let current: ControleAraoDB | undefined;
@@ -67,6 +68,13 @@ describe('banco controle-arao', () => {
       expect(r.updatedAt).toBe(r.createdAt);
       expect(r.deletedAt).toBeUndefined();
     }
+  });
+
+  it('as categorias de despesa ficam na ordem do seed quando ordenadas pela criação', async () => {
+    const db = await openFresh();
+    const names = byCreation(await db.expenseCategories.toArray()).map((c) => c.name);
+    expect(names.slice(0, 3)).toEqual(['Ingredientes', 'Embalagens', 'Funcionários']);
+    expect(names[11]).toBe('Outras despesas');
   });
 
   it('não repete o seed quando o banco é reaberto', async () => {

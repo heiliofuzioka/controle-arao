@@ -5,6 +5,7 @@ import {
   findWeekClose,
   isWeekClosed,
   planWeekClose,
+  weekCloseTotals,
 } from './weekClose';
 import { DIRECT, P, adjustment, delivery, sale, stockData, weekClose } from './testing';
 
@@ -129,5 +130,17 @@ describe('salvar o fechamento', () => {
       now: 'agora',
     });
     expect(plan.sale).toMatchObject({ id: 's1', deletedAt: 'agora' });
+  });
+});
+
+describe('totais da folha', () => {
+  it('soma os cards', () => {
+    expect(
+      weekCloseTotals([
+        { produced: 40, loss: 0, soldDirect: 36, valueCents: 18000 },
+        { produced: 48, loss: 2, soldDirect: 16, valueCents: 12800 },
+      ]),
+    ).toEqual({ produced: 88, loss: 2, soldDirect: 52, valueCents: 30800 });
+    expect(weekCloseTotals([])).toEqual({ produced: 0, loss: 0, soldDirect: 0, valueCents: 0 });
   });
 });

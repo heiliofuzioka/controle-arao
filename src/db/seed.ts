@@ -47,8 +47,11 @@ export const SEED_EXPENSE_CATEGORIES: Fields<ExpenseCategory>[] = [
 
 /** Roda só na criação do banco (evento `populate` do Dexie). */
 export async function seed(tx: Transaction): Promise<void> {
-  const now = new Date().toISOString();
-  const base = () => newBase(crypto.randomUUID(), now);
+  // Cada registro nasce 1 ms depois do anterior: a ordem de criação é a ordem das listas
+  // (as 12 categorias de despesa aparecem nos botões nessa ordem).
+  const start = Date.now();
+  let n = 0;
+  const base = () => newBase(crypto.randomUUID(), new Date(start + n++).toISOString());
 
   const categories: Category[] = [];
   const products: Product[] = [];

@@ -144,3 +144,22 @@ export function planWeekClose({ input, directPointId, existing, newId, now }: Pl
   }
   return hasSale ? { weekClose, sale: { ...newBase(newId(), now), ...saleFields } } : { weekClose };
 }
+
+export interface WeekCloseTotals {
+  produced: number;
+  loss: number;
+  soldDirect: number;
+  valueCents: Cents;
+}
+
+/** Totais da folha: "Produziu 122 · vendeu 56 na mão · perdeu 2" e a venda na mão da semana. */
+export function weekCloseTotals(cards: readonly WeekCloseTotals[]): WeekCloseTotals {
+  const total = { produced: 0, loss: 0, soldDirect: 0, valueCents: 0 };
+  for (const c of cards) {
+    total.produced += c.produced;
+    total.loss += c.loss;
+    total.soldDirect += c.soldDirect;
+    total.valueCents += c.valueCents;
+  }
+  return total;
+}

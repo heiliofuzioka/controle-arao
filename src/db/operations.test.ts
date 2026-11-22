@@ -6,6 +6,7 @@ import { ControleAraoDB } from './db';
 import {
   WeekCloseBlockedError,
   deleteExpense,
+  deleteWeekClose,
   deletePersonalExpense,
   loadStockData,
   saveExpense,
@@ -128,5 +129,29 @@ describe('despesas e gastos pessoais', () => {
     await deletePersonalExpense(db, id, 't3');
     expect(alive(await db.personalExpenses.toArray())).toHaveLength(0);
     expect(await db.personalExpenses.count()).toBe(1);
+  });
+});
+
+describe('apagar a semana', () => {
+  it('marca os fechamentos e as vendas da semana; as outras semanas ficam', async () => {
+    await saveWeekClose(db, '2026-11-02', [card(gelinho, 12, 10, 5000)]);
+    await saveWeekClose(db, '2026-11-09', [card(gelinho, 10, 8, 4000), card(brownie, 5, 5, 4000)]);
+    await deleteWeekClose(db, '2026-11-09', 'agora');
+
+    const closes = await db.weekCloses.toArray();
+    const sales = await db.sales.toArray();
+    expect(closes).toHaveLength(3);
+    expect(alive(closes).map((w) => w.weekStart)).toEqual(['2026-11-02']);
+    expect(alive(sales)).toHaveLength(1);
+    expect(sales.filter((s) => s.deletedAt === 'agora')).toHaveLength(2);
+    expect(homeStock(await loadStockData(db), gelinho)).toBe(2);
+  });
+
+  it('depois de apagar, fechar a mesma semana cria de novo', async () => {
+    await saveWeekClose(db, '2026-11-09', [card(gelinho, 10, 8, 4000)]);
+    await deleteWeekClose(db, '2026-11-09');
+    await saveWeekClose(db, '2026-11-09', [card(gelinho, 6, 6, 3000)]);
+    expect(alive(await db.weekCloses.toArray())).toHaveLength(1);
+    expect(alive(await db.sales.toArray())[0]).toMatchObject({ quantity: 6, valueCents: 3000 });
   });
 });

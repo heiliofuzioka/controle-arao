@@ -86,6 +86,7 @@ A UI aceita kg e L, mas grava em g e ml (`packageQty` e `quantity` ficam na unid
 - A semana vai de segunda a domingo; o fechamento vem marcado com a semana atual, e dá para escolher outra (só a atual e as anteriores; semanas futuras ficam bloqueadas).
 - **Desconto:** tocar no valor "Venda na mão" do card abre o campo para digitar outro valor (decidido em 15/11). Mudar a quantidade vendida volta o valor para vendidos × preço; sem preço cadastrado, o valor digitado fica.
 - Salvar cria/atualiza o `WeekClose` de cada produto e uma `Sale` com `origin: 'week_close'` na data do **domingo** da semana, numa única transação Dexie. Fechar de novo a mesma semana edita, não duplica.
+- **Apagar semana** (22/11): a folha de uma semana já fechada tem o botão "Apagar semana" (com confirmação), que marca como apagados os fechamentos e as vendas na mão daquela semana.
 - Entregas e acertos do Açougue continuam separados, nas datas em que acontecem.
 
 ### Regras de cálculo (todas em `src/domain/`, todas com teste)
@@ -105,6 +106,7 @@ A UI aceita kg e L, mas grava em g e ml (`packageQty` e `quantity` ficam na unid
   - Editar um acerto antigo usa o estoque de logo antes dele (entregas até a data dele e só os acertos anteriores).
   - Mudar ou apagar uma entrega que deixaria o Açougue com estoque negativo é bloqueado: "O Açougue já vendeu parte dessa entrega. Corrija o acerto antes."
   - "Recebi" mostra o aviso verde "R$ 64,00 recebido" com **Desfazer**.
+  - **Data da entrega** (pedido de 22/11): a folha Entregar tem a data embaixo da quantidade, hoje por padrão, com "toque para mudar a data" (não aceita data futura).
 - **A receber** = soma de `valueCents` dos acertos com `paid: false`. O botão "Recebi" marca `paid` e grava `paidDate`.
 - **Faturamento** = soma das `Sale.valueCents` do período.
 - **Já recebido** = venda direta + vendas importadas + vendas de acertos já pagos (confirmado em 08/11). O resto do faturamento é o que falta receber.

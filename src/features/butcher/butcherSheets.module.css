@@ -88,3 +88,11 @@
 .bigValueInput::placeholder {
   color: var(--cor-texto-sobre-acao-secundario);
 }
+
+/* Quantidade + data da entrega */
+.quantity {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+}

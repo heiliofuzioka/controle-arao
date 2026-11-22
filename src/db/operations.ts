@@ -300,3 +300,15 @@ export async function setSettlementPaid(
     await db.settlements.put(paid ? markPaid(current, paidDate, now) : markUnpaid(current, now));
   });
 }
+
+/** Apaga o fechamento de uma semana inteira e as vendas na mão dele (exclusão marcada). */
+export async function deleteWeekClose(db: ControleAraoDB, weekStart: LocalDate, now: string = nowIso()): Promise<void> {
+  await db.transaction('rw', [db.weekCloses, db.sales], async () => {
+    const closes = alive(await db.weekCloses.where('weekStart').equals(weekStart).toArray());
+    for (const close of closes) {
+      await db.weekCloses.put(softDelete(close, now));
+      const sales = await db.sales.where('weekCloseId').equals(close.id).toArray();
+      for (const sale of alive(sales)) await db.sales.put(softDelete(sale, now));
+    }
+  });
+}

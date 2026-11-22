@@ -136,7 +136,7 @@ export function HomePage() {
       <p className={styles.version}>Versão {__APP_VERSION__}</p>
 
       {sheet?.kind === 'week' && (
-        <WeekCloseSheet initialWeekStart={sheet.weekStart} onClose={close} onSaved={() => saved('Semana salva')} />
+        <WeekCloseSheet initialWeekStart={sheet.weekStart} onClose={close} onSaved={saved} />
       )}
       {sheet?.kind === 'expense' && <ExpenseSheet expense={sheet.expense} onClose={close} onSaved={saved} />}
       {sheet?.kind === 'personal' && (

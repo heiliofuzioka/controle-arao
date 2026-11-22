@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import { BigButton } from '../../components/buttons';
-import { Stepper } from '../../components/fields';
+import { DateLine, Stepper } from '../../components/fields';
 import { Notice } from '../../components/Notice';
 import { ProductPicker } from '../../components/ProductPicker';
 import { Sheet } from '../../components/Sheet';
@@ -14,7 +14,7 @@ import { formatCount } from '../../lib/format';
 import styles from './butcherSheets.module.css';
 
 interface Props {
-  /** Entrega a editar. Sem isso, é uma entrega nova (hoje). */
+  /** Entrega a editar. Sem isso, é uma entrega nova (hoje, com a data mudável). */
   delivery?: Delivery;
   onClose: () => void;
   onSaved: (message: string) => void;
@@ -27,7 +27,9 @@ export function DeliverySheet({ delivery, onClose, onSaved }: Props) {
     return { products, stock };
   }, []);
   const [productId, setProductId] = useState<ID | null>(delivery?.productId ?? null);
+  const today = toLocalDate(new Date());
   const [quantity, setQuantity] = useState(delivery?.quantity ?? 0);
+  const [date, setDate] = useState(delivery?.date ?? today);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +55,7 @@ export function DeliverySheet({ delivery, onClose, onSaved }: Props) {
   const save = () => {
     if (!product || quantity <= 0 || busy) return;
     void run(
-      () => saveDelivery(db, { id: delivery?.id, date: delivery?.date ?? toLocalDate(new Date()), productId: product.id, quantity }),
+      () => saveDelivery(db, { id: delivery?.id, date, productId: product.id, quantity }),
       delivery ? 'Entrega salva' : `${formatCount(quantity, product.name)} no Açougue`,
     );
   };
@@ -100,7 +102,19 @@ export function DeliverySheet({ delivery, onClose, onSaved }: Props) {
         />
       )}
 
-      <Stepper large label="Quantos vai levar?" value={quantity} onChange={(q) => { setQuantity(q); setError(null); }} />
+      <div className={styles.quantity}>
+        <Stepper
+          large
+          label="Quantos vai levar?"
+          value={quantity}
+          onChange={(q) => {
+            setQuantity(q);
+            setError(null);
+          }}
+        />
+        {/* Data da entrega: hoje por padrão; toque para mudar (decisão de 22/11). */}
+        <DateLine date={date} today={today} onChange={setDate} />
+      </div>
 
       {product && (
         <section className={styles.summary}>

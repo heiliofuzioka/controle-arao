@@ -7,7 +7,13 @@ import { Icon } from '../../components/Icon';
 import { Notice } from '../../components/Notice';
 import { Sheet } from '../../components/Sheet';
 import { db } from '../../db/db';
-import { WeekCloseBlockedError, loadActiveProducts, loadStockData, saveWeekClose } from '../../db/operations';
+import {
+  WeekCloseBlockedError,
+  deleteWeekClose,
+  loadActiveProducts,
+  loadStockData,
+  saveWeekClose,
+} from '../../db/operations';
 import { shiftDays, toLocalDate, weekStartOf } from '../../domain/dates';
 import type { StockData } from '../../domain/stock';
 import type { Cents, ID, LocalDate, Product } from '../../domain/types';
@@ -15,6 +21,7 @@ import {
   checkWeekClose,
   defaultWeekCloseValue,
   findWeekClose,
+  isWeekClosed,
   weekCloseTotals,
   type WeekCloseCheck,
 } from '../../domain/weekClose';
@@ -72,7 +79,7 @@ interface Props {
   /** Segunda-feira da semana a abrir. Sem isso, abre a semana atual. */
   initialWeekStart?: LocalDate;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (message: string) => void;
 }
 
 /** Folha "Fechar a semana": um card por produto. */
@@ -83,6 +90,7 @@ export function WeekCloseSheet({ initialWeekStart, onClose, onSaved }: Props) {
   const [form, setForm] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Monta o formulário quando os dados chegam e toda vez que a semana muda.
   if (data && (form === null || form.weekStart !== weekStart)) {
@@ -130,11 +138,26 @@ export function WeekCloseSheet({ initialWeekStart, onClose, onSaved }: Props) {
         weekStart,
         rows.map((r) => ({ productId: r.product.id, ...r.card, valueCents: r.valueCents })),
       );
-      onSaved();
+      onSaved('Semana salva');
     } catch (error) {
       setSaveError(
         error instanceof WeekCloseBlockedError ? error.message : 'Não deu para salvar. Tente de novo.',
       );
+      setSaving(false);
+    }
+  };
+
+  // A semana já foi fechada antes: dá para apagar o fechamento inteiro.
+  const closed = ready && isWeekClosed(data.stock.weekCloses, weekStart);
+
+  const remove = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await deleteWeekClose(db, weekStart);
+      onSaved('Semana apagada');
+    } catch {
+      setSaveError('Não deu para apagar. Tente de novo.');
       setSaving(false);
     }
   };
@@ -144,11 +167,23 @@ export function WeekCloseSheet({ initialWeekStart, onClose, onSaved }: Props) {
       title="Fechar a semana"
       onClose={onClose}
       footer={
-        <BigButton onClick={save} disabled={!ready || blocked || saving}>
-          {totals.valueCents > 0 && !blocked
-            ? `Salvar semana · ${formatCents(totals.valueCents)}`
-            : 'Salvar semana'}
-        </BigButton>
+        <>
+          {closed && confirmDelete && (
+            <BigButton variant="danger" disabled={saving} onClick={() => void remove()}>
+              Apagar mesmo
+            </BigButton>
+          )}
+          {closed && !confirmDelete && (
+            <BigButton variant="secondary" disabled={saving} onClick={() => setConfirmDelete(true)}>
+              Apagar semana
+            </BigButton>
+          )}
+          <BigButton onClick={save} disabled={!ready || blocked || saving}>
+            {totals.valueCents > 0 && !blocked
+              ? `Salvar semana · ${formatCents(totals.valueCents)}`
+              : 'Salvar semana'}
+          </BigButton>
+        </>
       }
     >
       <div className={styles.weekPicker}>
@@ -156,7 +191,10 @@ export function WeekCloseSheet({ initialWeekStart, onClose, onSaved }: Props) {
           type="button"
           className={styles.weekButton}
           aria-label="Semana anterior"
-          onClick={() => setWeekStart(shiftDays(weekStart, -7))}
+          onClick={() => {
+            setWeekStart(shiftDays(weekStart, -7));
+            setConfirmDelete(false);
+          }}
         >
           <Icon name="chevronLeft" size={22} />
         </button>
@@ -168,7 +206,10 @@ export function WeekCloseSheet({ initialWeekStart, onClose, onSaved }: Props) {
           className={styles.weekButton}
           aria-label="Próxima semana"
           disabled={weekStart >= currentWeek}
-          onClick={() => setWeekStart(shiftDays(weekStart, 7))}
+          onClick={() => {
+            setWeekStart(shiftDays(weekStart, 7));
+            setConfirmDelete(false);
+          }}
         >
           <Icon name="chevronRight" size={22} />
         </button>

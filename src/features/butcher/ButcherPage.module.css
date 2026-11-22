@@ -1,0 +1,113 @@
+/* Card "A receber" (atenção suave) */
+.receivable {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  padding: var(--espaco-16);
+  border-radius: var(--raio-card);
+  background: var(--cor-atencao-suave);
+}
+
+.receivableLabel {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-atencao);
+}
+
+.receivableValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero);
+  line-height: var(--tipo-numero-linha);
+  letter-spacing: var(--aperto-numero);
+  color: var(--cor-texto);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+}
+
+.sectionTitle {
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+}
+
+/* Lista de acertos esperando pagamento */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+  border-radius: var(--raio-card);
+  overflow: hidden;
+  background: var(--cor-fundo-pagina);
+}
+
+.pendingRow {
+  min-height: 64px;
+  padding: var(--espaco-12) var(--espaco-16);
+  background: var(--cor-fundo-card);
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-12);
+}
+
+.pendingInfo {
+  flex: 1 1 0;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-12);
+  text-align: left;
+}
+
+.pendingTexts {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pendingValue {
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+  color: var(--cor-texto);
+}
+
+.pendingDetail,
+.pendingStatus {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}
+
+.pendingStatus {
+  color: var(--cor-texto-atencao);
+}
+
+.receivedButton {
+  flex: none;
+  height: var(--altura-botao-compacto);
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0 20px;
+  background: var(--cor-acao);
+  color: var(--cor-texto-sobre-acao);
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+}
+
+.receivedButton:active {
+  background: var(--cor-acao-pressionada);
+}

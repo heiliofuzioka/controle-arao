@@ -2,8 +2,8 @@
 // Nunca apaga de verdade: exclusão marca deletedAt.
 import { alive, byCreation, newBase, softDelete, touch } from '../domain/records';
 import { computeSettlement, markPaid, markUnpaid, planSettlement } from '../domain/settlement';
-import { consignmentStock, deliveryChangeError, type StockData } from '../domain/stock';
-import type { Cents, Delivery, Expense, ID, LocalDate, PersonalExpense, SalesPoint } from '../domain/types';
+import { consignmentStock, deliveryChangeError, stockBeforeSettlement, type StockData } from '../domain/stock';
+import type { Cents, Delivery, Expense, ID, LocalDate, PersonalExpense, Product, SalesPoint } from '../domain/types';
 import { checkWeekClose, findWeekClose, planWeekClose } from '../domain/weekClose';
 import type { ControleAraoDB } from './db';
 
@@ -20,6 +20,15 @@ export async function loadStockData(db: ControleAraoDB): Promise<StockData> {
     db.stockAdjustments.toArray(),
   ]);
   return { weekCloses, sales, deliveries, settlements, adjustments };
+}
+
+/** Produtos ativos, na ordem das categorias (e da criação dentro de cada categoria). */
+export async function loadActiveProducts(db: ControleAraoDB): Promise<Product[]> {
+  const [products, categories] = await Promise.all([db.products.toArray(), db.categories.toArray()]);
+  const order = new Map(categories.map((c) => [c.id, c.order]));
+  return byCreation(alive(products).filter((p) => p.active)).sort(
+    (a, b) => (order.get(a.categoryId) ?? 0) - (order.get(b.categoryId) ?? 0),
+  );
 }
 
 export interface WeekCloseCardInput {
@@ -233,7 +242,7 @@ export async function saveSettlement(db: ControleAraoDB, input: SettlementInput,
       if (!product) throw new Error('Produto não encontrado.');
 
       const data = await loadStockData(db);
-      const stockBefore = consignmentStock(data, productId, { pointId, excludeSettlementId: current?.id });
+      const stockBefore = current ? stockBeforeSettlement(data, current) : consignmentStock(data, productId, { pointId });
       const result = computeSettlement({ stockBefore, remaining: input.remaining, loss: input.loss, priceCents: product.priceCents });
       if (!result.ok) throw new ButcherBlockedError(result.error);
 

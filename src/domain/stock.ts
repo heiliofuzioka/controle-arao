@@ -115,3 +115,22 @@ export function deliveryChangeError(data: StockData, productId: ID, pointId: ID,
   const after = consignmentStock(data, productId, { pointId }) + delta;
   return after < 0 ? 'O Açougue já vendeu parte dessa entrega. Corrija o acerto antes.' : null;
 }
+
+/**
+ * Estoque no Açougue logo antes de um acerto já salvo (para editar esse acerto):
+ * entregas até a data dele e só os acertos anteriores (pela data e, no mesmo dia, pela criação).
+ */
+export function stockBeforeSettlement(data: StockData, settlement: Settlement): number {
+  const isBefore = (s: Settlement) =>
+    s.date < settlement.date || (s.date === settlement.date && s.createdAt < settlement.createdAt);
+  return consignmentStock(
+    {
+      ...data,
+      deliveries: data.deliveries.filter((d) => d.date <= settlement.date),
+      settlements: data.settlements.filter((s) => s.id !== settlement.id && isBefore(s)),
+      adjustments: data.adjustments.filter((a) => a.date <= settlement.date),
+    },
+    settlement.productId,
+    { pointId: settlement.pointId },
+  );
+}

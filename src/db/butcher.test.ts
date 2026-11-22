@@ -142,3 +142,15 @@ describe('acerto do Açougue', () => {
     expect(await stock()).toBe(8); // o que tinha volta a contar
   });
 });
+
+describe('editar um acerto antigo', () => {
+  it('não desconta os acertos que vieram depois', async () => {
+    await setPrice(800);
+    await saveDelivery(db, { date: '2026-11-17', productId: brownie, quantity: 8 });
+    const first = await saveSettlement(db, { date: '2026-11-20', productId: brownie, remaining: 3, loss: 0 }, '2026-11-20T10:00:00.000Z');
+    await saveSettlement(db, { date: '2026-11-25', productId: brownie, remaining: 2, loss: 0 }, '2026-11-25T10:00:00.000Z');
+    // corrige o primeiro: na verdade sobraram 4 (vendeu 4)
+    await saveSettlement(db, { id: first, date: '2026-11-20', productId: brownie, remaining: 4, loss: 0 });
+    expect(await db.settlements.get(first)).toMatchObject({ soldQuantity: 4, valueCents: 3200 });
+  });
+});

@@ -198,3 +198,37 @@
 .stepperBox.invalid .stepperInput {
   color: var(--cor-erro);
 }
+
+/* ── Contador grande ── */
+.large {
+  gap: var(--espaco-8);
+}
+
+.large .stepperLabel {
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto);
+}
+
+.large .stepperBox {
+  height: 64px;
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo-card);
+  padding: 4px;
+}
+
+.large .stepButton {
+  width: 52px;
+  height: 52px;
+}
+
+.large .stepperInput {
+  height: 52px;
+  font-size: var(--tipo-numero);
+  line-height: var(--tipo-numero-linha);
+  letter-spacing: var(--aperto-numero);
+}
+
+.large .stepperInput:focus {
+  background: var(--cor-fundo-pagina);
+}

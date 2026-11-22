@@ -45,8 +45,12 @@ button {
   min-width: var(--toque-minimo);
 }
 
+/* Tela inteira: cada tela rola por dentro e a barra de abas fica presa embaixo.
+   As laterais e a base das áreas seguras ficam por conta de cada tela. */
 #root {
-  min-height: 100dvh;
-  padding: var(--area-segura-topo) var(--area-segura-direita) var(--area-segura-base)
-    var(--area-segura-esquerda);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--area-segura-topo);
+  overflow: hidden;
 }

@@ -100,6 +100,11 @@ A UI aceita kg e L, mas grava em g e ml (`packageQty` e `quantity` ficam na unid
   - `soldQuantity` = estoque no Açougue antes do acerto − `remaining` − `loss`. Se der negativo, é erro: bloquear e mostrar a mensagem.
   - `valueCents` = `soldQuantity` × preço do produto.
   - Salvar o acerto cria uma `Sale` com `origin: 'settlement'` na data do acerto, numa única transação Dexie.
+  - **Sem preço** (decidido em 22/11): o card azul mostra "Sem preço · toque no valor para digitar" e o Arão digita o valor que o Açougue vendeu. Com preço cadastrado, vale vendidos × preço.
+  - **Nada a receber** (decidido em 22/11): acerto com valor 0 (o Açougue não vendeu nada, só sobrou ou estragou) é salvo já como recebido; guarda a contagem para o estoque e não aparece em "Esperando pagamento".
+  - Editar um acerto antigo usa o estoque de logo antes dele (entregas até a data dele e só os acertos anteriores).
+  - Mudar ou apagar uma entrega que deixaria o Açougue com estoque negativo é bloqueado: "O Açougue já vendeu parte dessa entrega. Corrija o acerto antes."
+  - "Recebi" mostra o aviso verde "R$ 64,00 recebido" com **Desfazer**.
 - **A receber** = soma de `valueCents` dos acertos com `paid: false`. O botão "Recebi" marca `paid` e grava `paidDate`.
 - **Faturamento** = soma das `Sale.valueCents` do período.
 - **Já recebido** = venda direta + vendas importadas + vendas de acertos já pagos (confirmado em 08/11). O resto do faturamento é o que falta receber.

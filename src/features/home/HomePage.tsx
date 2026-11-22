@@ -1,13 +1,17 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Shortcut } from '../../components/buttons';
-import { EntryList, EntryRow, IconBadge } from '../../components/EntryList';
+import { EntryList, EntryRow, IconBadge, ProductBadge } from '../../components/EntryList';
 import { Notice } from '../../components/Notice';
+import { TabLayout } from '../../components/TabLayout';
 import { db } from '../../db/db';
-import type { Expense, LocalDate, PersonalExpense } from '../../domain/types';
-import { formatShortDate, formatWeekLabel } from '../../lib/format';
+import type { Delivery, Expense, LocalDate, PersonalExpense, Settlement } from '../../domain/types';
+import { formatCount, formatShortDate, formatWeekLabel } from '../../lib/format';
 import { formatCents } from '../../lib/money';
 import { isStandalone } from '../../lib/standalone';
+import { DeliverySheet } from '../butcher/DeliverySheet';
+import { SettlementSheet } from '../butcher/SettlementSheet';
 import { ExpenseSheet } from '../expense/ExpenseSheet';
 import { PersonalExpenseSheet } from '../personal/PersonalExpenseSheet';
 import { WeekCloseSheet } from '../week-close/WeekCloseSheet';
@@ -18,29 +22,45 @@ type OpenSheet =
   | { kind: 'week'; weekStart?: LocalDate }
   | { kind: 'expense'; expense?: Expense }
   | { kind: 'personal'; personalExpense?: PersonalExpense }
+  | { kind: 'delivery'; delivery: Delivery }
+  | { kind: 'settlement'; settlement: Settlement }
   | null;
 
 const joinDetail = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(' · ');
 
 /**
- * Entrada PROVISÓRIA do passo 4: os atalhos e a lista dos últimos lançamentos,
- * para abrir, editar e apagar. O Início de verdade (totais, estoque, abas) é do passo 6.
+ * Início PROVISÓRIO: os atalhos e a lista dos últimos lançamentos, para abrir,
+ * editar e apagar. O Início de verdade (totais, estoque, meta, avisos) é do passo 6.
  */
 export function HomePage() {
   const [sheet, setSheet] = useState<OpenSheet>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [showInstall, setShowInstall] = useState(false);
   const installed = isStandalone();
+  const navigate = useNavigate();
 
   const entries = useLiveQuery(async () => {
-    const [weekCloses, sales, expenses, expenseCategories, personalExpenses] = await Promise.all([
-      db.weekCloses.toArray(),
-      db.sales.toArray(),
-      db.expenses.toArray(),
-      db.expenseCategories.toArray(),
-      db.personalExpenses.toArray(),
-    ]);
-    return recentEntries({ weekCloses, sales, expenses, expenseCategories, personalExpenses });
+    const [weekCloses, sales, expenses, expenseCategories, personalExpenses, deliveries, settlements, products] =
+      await Promise.all([
+        db.weekCloses.toArray(),
+        db.sales.toArray(),
+        db.expenses.toArray(),
+        db.expenseCategories.toArray(),
+        db.personalExpenses.toArray(),
+        db.deliveries.toArray(),
+        db.settlements.toArray(),
+        db.products.toArray(),
+      ]);
+    return recentEntries({
+      weekCloses,
+      sales,
+      expenses,
+      expenseCategories,
+      personalExpenses,
+      deliveries,
+      settlements,
+      products,
+    });
   }, []);
 
   // O aviso de "salvo" some sozinho.
@@ -59,11 +79,13 @@ export function HomePage() {
   const open = (entry: RecentEntry) => {
     if (entry.kind === 'week') setSheet({ kind: 'week', weekStart: entry.weekStart });
     else if (entry.kind === 'expense') setSheet({ kind: 'expense', expense: entry.expense });
-    else setSheet({ kind: 'personal', personalExpense: entry.personalExpense });
+    else if (entry.kind === 'personal') setSheet({ kind: 'personal', personalExpense: entry.personalExpense });
+    else if (entry.kind === 'delivery') setSheet({ kind: 'delivery', delivery: entry.delivery });
+    else setSheet({ kind: 'settlement', settlement: entry.settlement });
   };
 
   return (
-    <main className={styles.page}>
+    <TabLayout>
       <header className={styles.header}>
         <img className={styles.mascot} src={`${import.meta.env.BASE_URL}brand/arao-mascote-azul.svg`} alt="" />
         <h1 className={styles.title}>Olá, Arão!</h1>
@@ -85,6 +107,9 @@ export function HomePage() {
       <nav className={styles.shortcuts} aria-label="Lançar">
         <Shortcut icon="calendar" highlight onClick={() => setSheet({ kind: 'week' })}>
           Fechar a semana
+        </Shortcut>
+        <Shortcut icon="store" onClick={() => navigate('/acougue')}>
+          Açougue
         </Shortcut>
         <Shortcut icon="receipt" onClick={() => setSheet({ kind: 'expense' })}>
           Despesa
@@ -117,7 +142,9 @@ export function HomePage() {
       {sheet?.kind === 'personal' && (
         <PersonalExpenseSheet personalExpense={sheet.personalExpense} onClose={close} onSaved={saved} />
       )}
-    </main>
+      {sheet?.kind === 'delivery' && <DeliverySheet delivery={sheet.delivery} onClose={close} onSaved={saved} />}
+      {sheet?.kind === 'settlement' && <SettlementSheet settlement={sheet.settlement} onClose={close} onSaved={saved} />}
+    </TabLayout>
   );
 }
 
@@ -141,6 +168,28 @@ function RecentRow({ entry, onClick }: { entry: RecentEntry; onClick: () => void
         title={entry.categoryName}
         detail={joinDetail(entry.expense.description, formatShortDate(entry.date))}
         value={`− ${formatCents(entry.expense.valueCents)}`}
+        onClick={onClick}
+      />
+    );
+  }
+  if (entry.kind === 'delivery') {
+    return (
+      <EntryRow
+        badge={<ProductBadge code={entry.product?.code ?? '?'} />}
+        title={`Entrega · ${formatCount(entry.delivery.quantity, entry.product?.name ?? 'produto')}`}
+        detail={`Açougue · ${formatShortDate(entry.date)}`}
+        onClick={onClick}
+      />
+    );
+  }
+  if (entry.kind === 'settlement') {
+    const s = entry.settlement;
+    return (
+      <EntryRow
+        badge={<ProductBadge code={entry.product?.code ?? '?'} />}
+        title={`Acerto · ${formatCount(s.soldQuantity, entry.product?.name ?? 'produto')}`}
+        detail={joinDetail(s.paid ? 'Recebido' : 'A receber', formatShortDate(entry.date))}
+        value={formatCents(s.valueCents)}
         onClick={onClick}
       />
     );

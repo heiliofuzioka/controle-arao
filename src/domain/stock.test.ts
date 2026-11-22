@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { consignmentStock, deliveryChangeError, homeStock, lastDeliveryDate, stockByProduct, weekCloseDate } from './stock';
+import {
+  consignmentStock,
+  deliveryChangeError,
+  homeStock,
+  lastDeliveryDate,
+  stockBeforeSettlement,
+  stockByProduct,
+  weekCloseDate,
+} from './stock';
 import { BUTCHER, OTHER, P, adjustment, delivery, sale, settlement, stockData, weekClose } from './testing';
 
 describe('estoque em casa', () => {
@@ -115,5 +123,26 @@ describe('entregas', () => {
     });
     expect(deliveryChangeError(data, P, BUTCHER, -4)).toBeNull();
     expect(deliveryChangeError(data, P, BUTCHER, -10)).toBe('O Açougue já vendeu parte dessa entrega. Corrija o acerto antes.');
+  });
+});
+
+describe('estoque antes de um acerto (para editar)', () => {
+  it('ignora o próprio acerto e os que vieram depois', () => {
+    const first = settlement({ id: 'a1', date: '2026-11-20', createdAt: 't1', soldQuantity: 5, loss: 0 });
+    const later = settlement({ id: 'a2', date: '2026-11-25', createdAt: 't2', soldQuantity: 0, loss: 1 });
+    const data = stockData({
+      deliveries: [delivery({ date: '2026-11-17', quantity: 8 }), delivery({ date: '2026-11-24', quantity: 10 })],
+      settlements: [first, later],
+    });
+    expect(stockBeforeSettlement(data, first)).toBe(8);
+    expect(stockBeforeSettlement(data, later)).toBe(13); // 8 − 5 + 10
+  });
+
+  it('no mesmo dia, vale a ordem de criação', () => {
+    const a = settlement({ id: 'a', date: '2026-11-20', createdAt: 't1', soldQuantity: 3 });
+    const b = settlement({ id: 'b', date: '2026-11-20', createdAt: 't2', soldQuantity: 2 });
+    const data = stockData({ deliveries: [delivery({ date: '2026-11-17', quantity: 10 })], settlements: [b, a] });
+    expect(stockBeforeSettlement(data, a)).toBe(10);
+    expect(stockBeforeSettlement(data, b)).toBe(7);
   });
 });

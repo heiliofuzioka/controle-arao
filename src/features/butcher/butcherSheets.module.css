@@ -1,0 +1,90 @@
+.pair {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espaco-8);
+}
+
+/* Card de resumo: branco na entrega, azul no acerto */
+.summary {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  padding: var(--espaco-16);
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo-card);
+}
+
+.summaryLabel {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}
+
+.summaryValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero);
+  line-height: var(--tipo-numero-linha);
+  letter-spacing: var(--aperto-numero);
+  color: var(--cor-texto);
+}
+
+.summaryAction {
+  background: var(--cor-acao);
+}
+
+.summaryAction .summaryLabel {
+  color: var(--cor-texto-sobre-acao-secundario);
+}
+
+.bigValue,
+.bigValueButton,
+.bigValueInput {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero-grande);
+  line-height: var(--tipo-numero-grande-linha);
+  letter-spacing: var(--aperto-titulo);
+  color: var(--cor-texto-sobre-acao);
+}
+
+.bigValueButton {
+  align-self: flex-start;
+  min-height: var(--toque-minimo);
+  border: 0;
+  padding: 0;
+  background: none;
+  text-align: left;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+.bigValueEdit {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espaco-8);
+  border-bottom: 2px solid var(--cor-texto-sobre-acao);
+}
+
+.currency {
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-secao);
+  color: var(--cor-texto-sobre-acao-secundario);
+}
+
+.bigValueInput {
+  flex: 1 1 0;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  background: none;
+}
+
+.bigValueInput::placeholder {
+  color: var(--cor-texto-sobre-acao-secundario);
+}

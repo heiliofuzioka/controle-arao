@@ -140,15 +140,17 @@ interface StepperProps {
   invalid?: boolean;
   /** Versão estreita (Perdeu). */
   compact?: boolean;
+  /** Contador grande, em card branco (Açougue: "Quantos vai levar?", "Sobraram"). */
+  large?: boolean;
   max?: number;
 }
 
-/** Passo: contador compacto de − / +. Tocar no número deixa digitar. */
-export function Stepper({ label, value, onChange, invalid, compact, max = 9999 }: StepperProps) {
+/** Passo: contador de − / +. Tocar no número deixa digitar. */
+export function Stepper({ label, value, onChange, invalid, compact, large, max = 9999 }: StepperProps) {
   const id = useId();
   const clamp = (n: number) => Math.max(0, Math.min(max, n));
   return (
-    <div className={`${styles.stepper} ${compact ? styles.compact : ''}`}>
+    <div className={`${styles.stepper} ${compact ? styles.compact : ''} ${large ? styles.large : ''}`}>
       <label htmlFor={id} className={styles.stepperLabel}>
         {label}
       </label>

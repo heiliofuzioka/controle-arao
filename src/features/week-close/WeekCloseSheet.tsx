@@ -7,9 +7,8 @@ import { Icon } from '../../components/Icon';
 import { Notice } from '../../components/Notice';
 import { Sheet } from '../../components/Sheet';
 import { db } from '../../db/db';
-import { WeekCloseBlockedError, loadStockData, saveWeekClose } from '../../db/operations';
+import { WeekCloseBlockedError, loadActiveProducts, loadStockData, saveWeekClose } from '../../db/operations';
 import { shiftDays, toLocalDate, weekStartOf } from '../../domain/dates';
-import { alive, byCreation } from '../../domain/records';
 import type { StockData } from '../../domain/stock';
 import type { Cents, ID, LocalDate, Product } from '../../domain/types';
 import {
@@ -41,18 +40,9 @@ interface Loaded {
   stock: StockData;
 }
 
-/** Produtos ativos, na ordem das categorias. */
 async function loadData(): Promise<Loaded> {
-  const [products, categories, stock] = await Promise.all([
-    db.products.toArray(),
-    db.categories.toArray(),
-    loadStockData(db),
-  ]);
-  const order = new Map(categories.map((c) => [c.id, c.order]));
-  const active = byCreation(alive(products).filter((p) => p.active)).sort(
-    (a, b) => (order.get(a.categoryId) ?? 0) - (order.get(b.categoryId) ?? 0),
-  );
-  return { products: active, stock };
+  const [products, stock] = await Promise.all([loadActiveProducts(db), loadStockData(db)]);
+  return { products, stock };
 }
 
 /** Começa com o que já foi salvo para a semana, ou com tudo em zero. */

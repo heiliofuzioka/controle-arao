@@ -1,0 +1,99 @@
+.layout {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-16);
+  padding: var(--espaco-4) calc(var(--margem-pagina) + var(--area-segura-direita)) var(--espaco-16)
+    calc(var(--margem-pagina) + var(--area-segura-esquerda));
+}
+
+.content > * {
+  flex: none;
+}
+
+.actions {
+  flex: none;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--espaco-8);
+  padding: var(--espaco-12) calc(var(--margem-pagina) + var(--area-segura-direita)) var(--espaco-12)
+    calc(var(--margem-pagina) + var(--area-segura-esquerda));
+}
+
+/* Dois botões lado a lado: menos recuo para o texto caber em 320px. */
+.actions > button {
+  padding-left: var(--espaco-12);
+  padding-right: var(--espaco-12);
+}
+
+.title {
+  padding-top: var(--espaco-8);
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-titulo);
+  line-height: var(--tipo-titulo-linha);
+  letter-spacing: var(--aperto-titulo);
+}
+
+/* ── Barra de abas ── */
+.tabs {
+  flex: none;
+  display: flex;
+  padding: var(--espaco-8) calc(var(--espaco-8) + var(--area-segura-direita))
+    max(var(--area-segura-base), var(--espaco-8)) calc(var(--espaco-8) + var(--area-segura-esquerda));
+  background: var(--cor-fundo-card);
+  box-shadow: var(--sombra-barra);
+}
+
+.tab {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-4);
+  color: var(--cor-texto-inativo);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tabIcon {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.active .tabIcon {
+  width: 56px;
+  border-radius: 16px;
+  background: var(--cor-info-suave);
+}
+
+.tabLabel {
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  font-weight: var(--peso-texto);
+}
+
+.active {
+  color: var(--cor-acao);
+}
+
+.active .tabLabel {
+  font-weight: var(--peso-forte);
+}

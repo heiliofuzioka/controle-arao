@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { OTHER, expense, expenseCategory, personal, sale, weekClose } from '../../domain/testing';
+import { OTHER, delivery, expense, expenseCategory, personal, product, sale, settlement, weekClose } from '../../domain/testing';
 import { entryValueCents, recentEntries } from './recent';
 
 const empty = { weekCloses: [], sales: [], expenses: [], expenseCategories: [], personalExpenses: [] };
@@ -64,5 +64,20 @@ describe('últimos lançamentos', () => {
   it('respeita o limite', () => {
     const personalExpenses = Array.from({ length: 5 }, (_, i) => personal({ date: `2026-11-0${i + 1}` }));
     expect(recentEntries({ ...empty, personalExpenses }, 3)).toHaveLength(3);
+  });
+});
+
+describe('entregas e acertos na lista', () => {
+  it('aparecem com o produto, sem os apagados', () => {
+    const entries = recentEntries({
+      ...empty,
+      products: [product({ id: OTHER, name: 'Brownie' })],
+      deliveries: [delivery({ id: 'd1', productId: OTHER, date: '2026-11-17', quantity: 8 }), delivery({ deletedAt: 'x' })],
+      settlements: [settlement({ id: 'a1', productId: OTHER, date: '2026-11-20', valueCents: 4800 })],
+    });
+    expect(entries.map((e) => e.key)).toEqual(['a1', 'd1']);
+    expect(entries[1]).toMatchObject({ kind: 'delivery', product: { name: 'Brownie' } });
+    expect(entryValueCents(entries[0]!)).toBe(4800);
+    expect(entryValueCents(entries[1]!)).toBe(0);
   });
 });

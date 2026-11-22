@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDayLabel, formatDayMonth, formatShortDate, formatWeekLabel } from './format';
+import { formatCount, formatDayLabel, formatDayMonth, formatShortDate, formatWeekLabel } from './format';
 
 describe('formatação de datas', () => {
   it('rótulo da semana', () => {
@@ -22,5 +22,15 @@ describe('formatação de datas', () => {
 
   it('data curta', () => {
     expect(formatShortDate('2026-11-07')).toBe('07/11');
+  });
+});
+
+describe('quantidade com nome', () => {
+  it('põe no plural', () => {
+    expect(formatCount(1, 'Brownie')).toBe('1 Brownie');
+    expect(formatCount(8, 'Brownie')).toBe('8 Brownies');
+    expect(formatCount(4, 'Torta')).toBe('4 Tortas');
+    expect(formatCount(2, 'Brownie recheado')).toBe('2 Brownies recheados');
+    expect(formatCount(0, 'Gelinho')).toBe('0 Gelinhos');
   });
 });

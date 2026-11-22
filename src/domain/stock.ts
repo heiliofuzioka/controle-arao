@@ -96,3 +96,22 @@ export function stockByProduct(data: StockData, productIds: ID[], until?: LocalD
     consignment: consignmentStock(data, productId, { until }),
   }));
 }
+
+/** Data da última entrega de um produto ("Entregue 07/11"), ou undefined se nunca entregou. */
+export function lastDeliveryDate(deliveries: Delivery[], productId: ID, pointId?: ID): LocalDate | undefined {
+  let last: LocalDate | undefined;
+  for (const d of alive(deliveries))
+    if (d.productId === productId && (pointId === undefined || d.pointId === pointId) && (!last || d.date > last))
+      last = d.date;
+  return last;
+}
+
+/**
+ * Mudar ou apagar uma entrega não pode deixar o Açougue com estoque negativo
+ * (ele já vendeu ou devolveu parte do que foi entregue).
+ * `delta` = quanto o estoque do Açougue muda (ex.: apagar uma entrega de 10 → −10).
+ */
+export function deliveryChangeError(data: StockData, productId: ID, pointId: ID, delta: number): string | null {
+  const after = consignmentStock(data, productId, { pointId }) + delta;
+  return after < 0 ? 'O Açougue já vendeu parte dessa entrega. Corrija o acerto antes.' : null;
+}

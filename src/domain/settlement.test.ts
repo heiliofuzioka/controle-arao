@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { computeSettlement, markPaid, receivableCents, saleFromSettlement } from './settlement';
-import { settlement } from './testing';
+import { computeSettlement, markPaid, markUnpaid, planSettlement, receivableCents, saleFromSettlement } from './settlement';
+import { BUTCHER, P, sale, settlement } from './testing';
 
 describe('acerto', () => {
   it('vendidos = estoque antes − sobra − perda; valor = vendidos × preço', () => {
@@ -25,7 +25,10 @@ describe('acerto', () => {
   it('bloqueia quando sobra + perda passa do estoque', () => {
     const r = computeSettlement({ stockBefore: 10, remaining: 9, loss: 2, priceCents: 500 });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toContain('tinha 10');
+    if (!r.ok) expect(r.error).toBe('Sobra e perda passam do que tinha no Açougue (10). Confira os números.');
+    const r2 = computeSettlement({ stockBefore: 8, remaining: 10, loss: 0, priceCents: 800 });
+    expect(r2.ok).toBe(false);
+    if (!r2.ok) expect(r2.error).toBe('Sobrou mais do que tinha no Açougue (8). Confira os números.');
   });
 
   it('bloqueia números negativos ou quebrados', () => {
@@ -68,5 +71,51 @@ describe('a receber', () => {
     expect(paid).toMatchObject({ paid: true, paidDate: '2026-11-09', updatedAt: 'agora' });
     expect(s.paid).toBe(false);
     expect(receivableCents([paid])).toBe(0);
+  });
+});
+
+describe('desfazer o Recebi', () => {
+  it('volta para a receber e tira a data do pagamento', () => {
+    const paid = markPaid(settlement({ valueCents: 6400 }), '2026-11-09', 't1');
+    const undone = markUnpaid(paid, 't2');
+    expect(undone).toMatchObject({ paid: false, updatedAt: 't2' });
+    expect('paidDate' in undone).toBe(false);
+    expect(receivableCents([undone])).toBe(6400);
+  });
+});
+
+describe('salvar o acerto', () => {
+  let n = 0;
+  const newId = () => `novo-${++n}`;
+  const input = { date: '2026-11-22', pointId: BUTCHER, productId: P, remaining: 2, loss: 0, soldQuantity: 6, valueCents: 4800 };
+
+  it('cria o acerto a receber e a venda na data do acerto', () => {
+    n = 0;
+    const plan = planSettlement({ input, newId, now: 'agora' });
+    expect(plan.settlement).toMatchObject({ id: 'novo-1', paid: false, soldQuantity: 6, valueCents: 4800, createdAt: 'agora' });
+    expect('paidDate' in plan.settlement).toBe(false);
+    expect(plan.sale).toMatchObject({ id: 'novo-2', date: '2026-11-22', quantity: 6, valueCents: 4800, origin: 'settlement', settlementId: 'novo-1' });
+  });
+
+  it('acerto sem nada a receber já nasce recebido e não cria venda', () => {
+    const plan = planSettlement({ input: { ...input, remaining: 6, loss: 2, soldQuantity: 0, valueCents: 0 }, newId, now: 'agora' });
+    expect(plan.settlement).toMatchObject({ paid: true, paidDate: '2026-11-22', loss: 2 });
+    expect(plan.sale).toBeUndefined();
+  });
+
+  it('editar mantém o id, a venda e o Recebi', () => {
+    const old = settlement({ id: 'a1', createdAt: 'antes', paid: true, paidDate: '2026-11-23', valueCents: 4800, soldQuantity: 6 });
+    const oldSale = sale({ id: 's1', settlementId: 'a1', origin: 'settlement', createdAt: 'antes' });
+    const plan = planSettlement({ input: { ...input, remaining: 3, soldQuantity: 5, valueCents: 4000 }, existing: { settlement: old, sale: oldSale }, newId, now: 'depois' });
+    expect(plan.settlement).toMatchObject({ id: 'a1', createdAt: 'antes', updatedAt: 'depois', paid: true, paidDate: '2026-11-23', valueCents: 4000 });
+    expect(plan.sale).toMatchObject({ id: 's1', createdAt: 'antes', updatedAt: 'depois', quantity: 5, valueCents: 4000 });
+  });
+
+  it('se a venda zerou na edição, a venda antiga é marcada como apagada', () => {
+    const old = settlement({ id: 'a1', valueCents: 4800 });
+    const oldSale = sale({ id: 's1', settlementId: 'a1', origin: 'settlement' });
+    const plan = planSettlement({ input: { ...input, soldQuantity: 0, valueCents: 0 }, existing: { settlement: old, sale: oldSale }, newId, now: 'depois' });
+    expect(plan.sale).toMatchObject({ id: 's1', deletedAt: 'depois' });
+    expect(plan.settlement.paid).toBe(true);
   });
 });

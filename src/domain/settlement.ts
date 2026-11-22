@@ -1,6 +1,6 @@
 import { multiplyCents, sumCents } from './money';
-import { alive, newBase, touch } from './records';
-import type { Cents, LocalDate, Sale, Settlement } from './types';
+import { alive, newBase, softDelete, touch } from './records';
+import type { Cents, ID, LocalDate, Sale, Settlement } from './types';
 
 export interface SettlementInput {
   /** Estoque no Açougue antes do acerto. */
@@ -31,7 +31,10 @@ export function computeSettlement(input: SettlementInput): SettlementResult {
   if (soldQuantity < 0) {
     return {
       ok: false,
-      error: `O Açougue tinha ${stockBefore}, mas sobra mais perda dá ${remaining + loss}. Confira os números.`,
+      error:
+        loss > 0
+          ? `Sobra e perda passam do que tinha no Açougue (${stockBefore}). Confira os números.`
+          : `Sobrou mais do que tinha no Açougue (${stockBefore}). Confira os números.`,
     };
   }
   return { ok: true, soldQuantity, valueCents: multiplyCents(soldQuantity, priceCents) };
@@ -59,4 +62,59 @@ export function receivableCents(settlements: Settlement[]): Cents {
 /** Botão "Recebi". */
 export function markPaid(settlement: Settlement, paidDate: LocalDate, now: string): Settlement {
   return touch(settlement, { paid: true, paidDate }, now);
+}
+
+/** Desfazer o "Recebi". */
+export function markUnpaid(settlement: Settlement, now: string): Settlement {
+  const { paidDate: _removed, ...rest } = settlement;
+  return { ...rest, paid: false, updatedAt: now };
+}
+
+export interface SettlementPlanInput {
+  date: LocalDate;
+  pointId: ID;
+  productId: ID;
+  remaining: number;
+  loss: number;
+  soldQuantity: number;
+  /** vendidos × preço, ou o valor digitado quando o produto ainda não tem preço. */
+  valueCents: Cents;
+}
+
+export interface SettlementPlan {
+  settlement: Settlement;
+  /** Venda na data do acerto; com deletedAt quando deixou de existir. Ausente se não há venda. */
+  sale?: Sale;
+}
+
+/**
+ * Monta o que gravar ao salvar um acerto (numa única transação Dexie).
+ * Acerto sem nada a receber (valor 0) já nasce como recebido (decisão de 22/11).
+ * Editar mantém o "Recebi" de um acerto que ainda tem valor.
+ */
+export function planSettlement(args: {
+  input: SettlementPlanInput;
+  existing?: { settlement: Settlement; sale?: Sale };
+  newId: () => ID;
+  now: string;
+}): SettlementPlan {
+  const { input, existing, newId, now } = args;
+  const paid = input.valueCents === 0 || (existing?.settlement.paid ?? false);
+  const paidDate = paid ? (existing?.settlement.paidDate ?? input.date) : undefined;
+
+  const base: Settlement = existing ? existing.settlement : ({ ...newBase(newId(), now) } as Settlement);
+  const { paidDate: _old, ...withoutPaidDate } = base;
+  const settlement: Settlement = {
+    ...withoutPaidDate,
+    ...input,
+    paid,
+    ...(paidDate ? { paidDate } : {}),
+    updatedAt: now,
+  };
+
+  const hasSale = input.soldQuantity > 0 || input.valueCents > 0;
+  const oldSale = existing?.sale && !existing.sale.deletedAt ? existing.sale : undefined;
+  if (!hasSale) return oldSale ? { settlement, sale: softDelete(oldSale, now) } : { settlement };
+  const fresh = saleFromSettlement(settlement, oldSale?.id ?? newId(), now);
+  return { settlement, sale: oldSale ? { ...fresh, createdAt: oldSale.createdAt } : fresh };
 }

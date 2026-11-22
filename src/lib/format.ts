@@ -31,3 +31,16 @@ export function formatDayLabel(date: LocalDate, today: LocalDate): string {
 export function formatShortDate(date: LocalDate): string {
   return fmt(date, 'dd/MM');
 }
+
+/**
+ * "1 Brownie", "8 Brownies", "2 Brownies recheados", "3 Tortas".
+ * Regra simples do português: palavra terminada em vogal ganha "s".
+ */
+export function formatCount(quantity: number, name: string): string {
+  if (quantity === 1) return `1 ${name}`;
+  const plural = name
+    .split(' ')
+    .map((word) => (/[aeiouáéíóú]$/i.test(word) ? `${word}s` : word))
+    .join(' ');
+  return `${quantity} ${plural}`;
+}

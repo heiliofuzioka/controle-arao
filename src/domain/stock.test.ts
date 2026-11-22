@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { consignmentStock, homeStock, stockByProduct, weekCloseDate } from './stock';
+import { consignmentStock, deliveryChangeError, homeStock, lastDeliveryDate, stockByProduct, weekCloseDate } from './stock';
 import { BUTCHER, OTHER, P, adjustment, delivery, sale, settlement, stockData, weekClose } from './testing';
 
 describe('estoque em casa', () => {
@@ -98,5 +98,22 @@ describe('estoque por produto', () => {
       { productId: P, home: 6, consignment: 4 },
       { productId: OTHER, home: 0, consignment: 0 },
     ]);
+  });
+});
+
+describe('entregas', () => {
+  it('acha a data da última entrega', () => {
+    const list = [delivery({ date: '2026-11-03' }), delivery({ date: '2026-11-07' }), delivery({ date: '2026-11-09', deletedAt: 'x' })];
+    expect(lastDeliveryDate(list, P)).toBe('2026-11-07');
+    expect(lastDeliveryDate(list, OTHER)).toBeUndefined();
+  });
+
+  it('não deixa mudar uma entrega que o Açougue já vendeu', () => {
+    const data = stockData({
+      deliveries: [delivery({ quantity: 10 })],
+      settlements: [settlement({ soldQuantity: 6, loss: 0 })],
+    });
+    expect(deliveryChangeError(data, P, BUTCHER, -4)).toBeNull();
+    expect(deliveryChangeError(data, P, BUTCHER, -10)).toBe('O Açougue já vendeu parte dessa entrega. Corrija o acerto antes.');
   });
 });

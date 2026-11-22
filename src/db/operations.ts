@@ -1,8 +1,9 @@
 // Gravações do app. Cada função roda numa única transação Dexie.
 // Nunca apaga de verdade: exclusão marca deletedAt.
 import { alive, byCreation, newBase, softDelete, touch } from '../domain/records';
-import type { StockData } from '../domain/stock';
-import type { Cents, Expense, ID, LocalDate, PersonalExpense } from '../domain/types';
+import { computeSettlement, markPaid, markUnpaid, planSettlement } from '../domain/settlement';
+import { consignmentStock, deliveryChangeError, type StockData } from '../domain/stock';
+import type { Cents, Delivery, Expense, ID, LocalDate, PersonalExpense, SalesPoint } from '../domain/types';
 import { checkWeekClose, findWeekClose, planWeekClose } from '../domain/weekClose';
 import type { ControleAraoDB } from './db';
 
@@ -141,5 +142,152 @@ export async function deletePersonalExpense(db: ControleAraoDB, id: ID, now: str
   await db.transaction('rw', db.personalExpenses, async () => {
     const current = await db.personalExpenses.get(id);
     if (current) await db.personalExpenses.put(softDelete(current, now));
+  });
+}
+
+// ── Açougue ──
+
+/** O ponto de consignação (Açougue). */
+export async function consignmentPoint(db: ControleAraoDB): Promise<SalesPoint> {
+  const point = byCreation(alive(await db.salesPoints.toArray())).find((p) => p.mode === 'consignment');
+  if (!point) throw new Error('Açougue não encontrado.');
+  return point;
+}
+
+/** A entrega ou o acerto não pôde ser salvo; a mensagem é para o Arão. */
+export class ButcherBlockedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ButcherBlockedError';
+  }
+}
+
+export interface DeliveryInput {
+  /** Presente quando é edição. */
+  id?: ID;
+  date: LocalDate;
+  productId: ID;
+  quantity: number;
+}
+
+export async function saveDelivery(db: ControleAraoDB, input: DeliveryInput, now: string = nowIso()): Promise<ID> {
+  if (!Number.isSafeInteger(input.quantity) || input.quantity <= 0) {
+    throw new ButcherBlockedError('Coloque quantos vai levar.');
+  }
+  return db.transaction(
+    'rw',
+    [db.deliveries, db.weekCloses, db.sales, db.settlements, db.stockAdjustments, db.salesPoints],
+    async () => {
+      const point = await consignmentPoint(db);
+      const current = input.id ? await db.deliveries.get(input.id) : undefined;
+      if (current) {
+        // Diminuir ou trocar o produto de uma entrega não pode deixar o Açougue negativo.
+        const data = await loadStockData(db);
+        const sameProduct = current.productId === input.productId;
+        const delta = sameProduct ? input.quantity - current.quantity : -current.quantity;
+        const error = deliveryChangeError(data, current.productId, current.pointId, delta);
+        if (error) throw new ButcherBlockedError(error);
+      }
+      const fields = { date: input.date, pointId: current?.pointId ?? point.id, productId: input.productId, quantity: input.quantity };
+      const record: Delivery = current ? touch(current, fields, now) : { ...newBase(newId(), now), ...fields };
+      await db.deliveries.put(record);
+      return record.id;
+    },
+  );
+}
+
+export async function deleteDelivery(db: ControleAraoDB, id: ID, now: string = nowIso()): Promise<void> {
+  await db.transaction('rw', [db.deliveries, db.weekCloses, db.sales, db.settlements, db.stockAdjustments], async () => {
+    const current = await db.deliveries.get(id);
+    if (!current || current.deletedAt) return;
+    const error = deliveryChangeError(await loadStockData(db), current.productId, current.pointId, -current.quantity);
+    if (error) throw new ButcherBlockedError(error);
+    await db.deliveries.put(softDelete(current, now));
+  });
+}
+
+export interface SettlementInput {
+  /** Presente quando é edição (o produto não muda). */
+  id?: ID;
+  date: LocalDate;
+  productId: ID;
+  remaining: number;
+  loss: number;
+  /** Valor digitado quando o produto não tem preço. Com preço, vale vendidos × preço. */
+  manualValueCents?: Cents;
+}
+
+/**
+ * Salva o acerto e a venda dele na mesma transação.
+ * Vendidos = estoque no Açougue antes do acerto − sobra − perda.
+ */
+export async function saveSettlement(db: ControleAraoDB, input: SettlementInput, now: string = nowIso()): Promise<ID> {
+  return db.transaction(
+    'rw',
+    [db.settlements, db.sales, db.deliveries, db.weekCloses, db.stockAdjustments, db.salesPoints, db.products],
+    async () => {
+      const current = input.id ? await db.settlements.get(input.id) : undefined;
+      const pointId = current?.pointId ?? (await consignmentPoint(db)).id;
+      const productId = current?.productId ?? input.productId;
+      const product = await db.products.get(productId);
+      if (!product) throw new Error('Produto não encontrado.');
+
+      const data = await loadStockData(db);
+      const stockBefore = consignmentStock(data, productId, { pointId, excludeSettlementId: current?.id });
+      const result = computeSettlement({ stockBefore, remaining: input.remaining, loss: input.loss, priceCents: product.priceCents });
+      if (!result.ok) throw new ButcherBlockedError(result.error);
+
+      const valueCents = product.priceCents > 0 ? result.valueCents : (input.manualValueCents ?? 0);
+      if (result.soldQuantity > 0 && valueCents === 0) {
+        throw new ButcherBlockedError('Coloque o valor do que o Açougue vendeu.');
+      }
+
+      const currentSale = current
+        ? data.sales.find((s) => s.settlementId === current.id && s.origin === 'settlement' && !s.deletedAt)
+        : undefined;
+      const plan = planSettlement({
+        input: {
+          date: input.date,
+          pointId,
+          productId,
+          remaining: input.remaining,
+          loss: input.loss,
+          soldQuantity: result.soldQuantity,
+          valueCents,
+        },
+        existing: current ? { settlement: current, sale: currentSale } : undefined,
+        newId,
+        now,
+      });
+      await db.settlements.put(plan.settlement);
+      if (plan.sale) await db.sales.put(plan.sale);
+      return plan.settlement.id;
+    },
+  );
+}
+
+/** Apaga o acerto e a venda dele (exclusão marcada). */
+export async function deleteSettlement(db: ControleAraoDB, id: ID, now: string = nowIso()): Promise<void> {
+  await db.transaction('rw', [db.settlements, db.sales], async () => {
+    const current = await db.settlements.get(id);
+    if (!current || current.deletedAt) return;
+    await db.settlements.put(softDelete(current, now));
+    const sales = await db.sales.where('settlementId').equals(id).toArray();
+    for (const sale of alive(sales)) await db.sales.put(softDelete(sale, now));
+  });
+}
+
+/** Botão "Recebi" (e "Desfazer"). */
+export async function setSettlementPaid(
+  db: ControleAraoDB,
+  id: ID,
+  paid: boolean,
+  paidDate: LocalDate,
+  now: string = nowIso(),
+): Promise<void> {
+  await db.transaction('rw', db.settlements, async () => {
+    const current = await db.settlements.get(id);
+    if (!current) return;
+    await db.settlements.put(paid ? markPaid(current, paidDate, now) : markUnpaid(current, now));
   });
 }

@@ -44,3 +44,30 @@ export function formatCount(quantity: number, name: string): string {
     .join(' ');
   return `${quantity} ${plural}`;
 }
+
+/** "3 a 9 de novembro" ou "27 de outubro a 2 de novembro". */
+export function formatWeekRangeLong(weekStart: LocalDate): string {
+  const end = shiftDays(weekStart, 6);
+  const sameMonth = weekStart.slice(0, 7) === end.slice(0, 7);
+  return sameMonth
+    ? `${fmt(weekStart, 'd')} a ${fmt(end, "d 'de' MMMM")}`
+    : `${fmt(weekStart, "d 'de' MMMM")} a ${fmt(end, "d 'de' MMMM")}`;
+}
+
+/** "3 a 9 de nov" (curto, sem "Semana de"). */
+export function formatWeekRangeShort(weekStart: LocalDate): string {
+  return formatWeekLabel(weekStart).replace(/^Semana de /, '');
+}
+
+/** "Novembro" e "Novembro de 2026". */
+export function formatMonthName(month: string, withYear = false): string {
+  const name = fmt(`${month}-01`, withYear ? "MMMM 'de' yyyy" : 'MMMM');
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+/** "Qua 05/11" */
+const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+export function formatWeekdayDate(date: LocalDate): string {
+  return `${WEEKDAYS[parseLocalDate(date).getDay()]} ${formatShortDate(date)}`;
+}

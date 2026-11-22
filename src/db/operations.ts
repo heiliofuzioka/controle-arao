@@ -3,7 +3,18 @@
 import { alive, byCreation, newBase, softDelete, touch } from '../domain/records';
 import { computeSettlement, markPaid, markUnpaid, planSettlement } from '../domain/settlement';
 import { consignmentStock, deliveryChangeError, stockBeforeSettlement, type StockData } from '../domain/stock';
-import type { Cents, Delivery, Expense, ID, LocalDate, PersonalExpense, Product, SalesPoint } from '../domain/types';
+import { planStockCount, type StockCount } from '../domain/count';
+import type {
+  Cents,
+  Delivery,
+  Expense,
+  ID,
+  LocalDate,
+  MonthlyGoal,
+  PersonalExpense,
+  Product,
+  SalesPoint,
+} from '../domain/types';
 import { checkWeekClose, findWeekClose, planWeekClose } from '../domain/weekClose';
 import type { ControleAraoDB } from './db';
 
@@ -310,5 +321,56 @@ export async function deleteWeekClose(db: ControleAraoDB, weekStart: LocalDate, 
       const sales = await db.sales.where('weekCloseId').equals(close.id).toArray();
       for (const sale of alive(sales)) await db.sales.put(softDelete(sale, now));
     }
+  });
+}
+
+// ── Contar estoque e metas ──
+
+/** Contagem de estoque: um ajuste para cada diferença entre o contado e o calculado. */
+export async function saveStockCount(
+  db: ControleAraoDB,
+  date: LocalDate,
+  counts: StockCount[],
+  now: string = nowIso(),
+): Promise<number> {
+  return db.transaction(
+    'rw',
+    [db.stockAdjustments, db.weekCloses, db.sales, db.deliveries, db.settlements, db.salesPoints],
+    async () => {
+      const point = await consignmentPoint(db);
+      const adjustments = planStockCount({
+        data: await loadStockData(db),
+        counts,
+        date,
+        consignmentPointId: point.id,
+        newId,
+        now,
+      });
+      await db.stockAdjustments.bulkPut(adjustments);
+      return adjustments.length;
+    },
+  );
+}
+
+/** Metas do mês (faturamento e lucro estimado). Valor vazio ou 0 = sem meta. */
+export async function saveMonthlyGoal(
+  db: ControleAraoDB,
+  month: string,
+  goal: { revenueCents: Cents | null; profitCents: Cents | null },
+  now: string = nowIso(),
+): Promise<void> {
+  await db.transaction('rw', db.monthlyGoals, async () => {
+    const current = alive(await db.monthlyGoals.where('month').equals(month).toArray())[0];
+    const revenueCents = goal.revenueCents && goal.revenueCents > 0 ? goal.revenueCents : undefined;
+    const profitCents = goal.profitCents && goal.profitCents > 0 ? goal.profitCents : undefined;
+    const base: MonthlyGoal = current
+      ? { ...current, updatedAt: now }
+      : ({ ...newBase(newId(), now), month } as MonthlyGoal);
+    const { revenueCents: _r, profitCents: _p, ...rest } = base;
+    await db.monthlyGoals.put({
+      ...rest,
+      ...(revenueCents ? { revenueCents } : {}),
+      ...(profitCents ? { profitCents } : {}),
+    });
   });
 }

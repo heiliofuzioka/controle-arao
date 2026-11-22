@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatCents, formatCentsPlain, parseCentsInput } from './money';
+import { formatCents, formatCentsPlain, formatPercent, formatReais, parseCentsInput } from './money';
 
 describe('formatCents', () => {
   it('formata em reais', () => {
@@ -35,5 +35,14 @@ describe('parseCentsInput', () => {
 
   it.each(['', 'abc', '-5', '1,234', '12,50,1', ','])('recusa "%s"', (text) => {
     expect(parseCentsInput(text)).toBeNull();
+  });
+});
+
+describe('metas', () => {
+  it('reais redondos e porcentagem', () => {
+    expect(formatReais(274700)).toMatch(/^R\$\s2\.747$/);
+    expect(formatReais(25350)).toMatch(/^R\$\s254$/);
+    expect(formatPercent(2747 / 3000)).toBe('92%');
+    expect(formatPercent(1.2)).toBe('120%');
   });
 });

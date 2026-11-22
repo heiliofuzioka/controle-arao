@@ -36,3 +36,15 @@ export function parseCentsInput(text: string): Cents | null {
   const cents = Number((match[2] ?? '').padEnd(2, '0'));
   return reais * 100 + cents;
 }
+
+const wholeReais = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0, minimumFractionDigits: 0 });
+
+/** Valor em reais redondos, para as metas: 274700 → "R$ 2.747". */
+export function formatReais(cents: Cents): string {
+  return wholeReais.format(Math.round(cents / 100));
+}
+
+/** Porcentagem inteira: 0,9157 → "92%". */
+export function formatPercent(ratio: number): string {
+  return `${Math.round(ratio * 100)}%`;
+}

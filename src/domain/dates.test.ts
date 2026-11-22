@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   daysBetween,
+  daysLeftInMonth,
   isInRange,
   lastMonths,
   lastWeeks,
@@ -135,5 +136,13 @@ describe('semanas do mês e ano', () => {
     expect(monthsOfYear(2026)).toHaveLength(12);
     expect(monthsOfYear(2026)[0]).toBe('2026-01');
     expect(monthsOfYear(2026)[11]).toBe('2026-12');
+  });
+});
+
+describe('dias até o fim do mês', () => {
+  it('conta os dias que faltam', () => {
+    expect(daysLeftInMonth('2026-11-08')).toBe(22);
+    expect(daysLeftInMonth('2026-11-30')).toBe(0);
+    expect(daysLeftInMonth('2026-02-01')).toBe(27);
   });
 });

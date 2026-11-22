@@ -123,3 +123,8 @@ export function yearRange(year: number): DateRange {
 export function monthsOfYear(year: number): MonthKey[] {
   return Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, '0')}`);
 }
+
+/** Dias que faltam até o fim do mês (hoje não conta): 8/11 → 22. */
+export function daysLeftInMonth(today: LocalDate): number {
+  return daysBetween(today, monthRange(monthKey(today)).end);
+}

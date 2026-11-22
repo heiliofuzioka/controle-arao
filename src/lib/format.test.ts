@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { formatCount, formatDayLabel, formatDayMonth, formatShortDate, formatWeekLabel } from './format';
+import {
+  formatCount,
+  formatDayLabel,
+  formatDayMonth,
+  formatMonthName,
+  formatShortDate,
+  formatWeekLabel,
+  formatWeekRangeLong,
+  formatWeekRangeShort,
+  formatWeekdayDate,
+} from './format';
 
 describe('formatação de datas', () => {
   it('rótulo da semana', () => {
@@ -32,5 +42,23 @@ describe('quantidade com nome', () => {
     expect(formatCount(4, 'Torta')).toBe('4 Tortas');
     expect(formatCount(2, 'Brownie recheado')).toBe('2 Brownies recheados');
     expect(formatCount(0, 'Gelinho')).toBe('0 Gelinhos');
+  });
+});
+
+describe('semana, mês e dia da semana', () => {
+  it('intervalo da semana por extenso e curto', () => {
+    expect(formatWeekRangeLong('2026-11-02')).toBe('2 a 8 de novembro');
+    expect(formatWeekRangeLong('2026-10-26')).toBe('26 de outubro a 1 de novembro');
+    expect(formatWeekRangeShort('2026-11-02')).toBe('2 a 8 de nov');
+  });
+
+  it('nome do mês', () => {
+    expect(formatMonthName('2026-11')).toBe('Novembro');
+    expect(formatMonthName('2026-11', true)).toBe('Novembro de 2026');
+  });
+
+  it('dia da semana com a data', () => {
+    expect(formatWeekdayDate('2026-11-05')).toBe('Qui 05/11');
+    expect(formatWeekdayDate('2026-11-08')).toBe('Dom 08/11');
   });
 });

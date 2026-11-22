@@ -234,7 +234,7 @@ export function WeekCloseSheet({ initialWeekStart, onClose, onSaved }: Props) {
             <p className={styles.totalLabel}>Venda na mão da semana</p>
             <p className={styles.totalValue}>{formatCents(totals.valueCents)}</p>
             <p className={styles.totalLabel}>
-              Produziu {totals.produced} · vendeu {totals.soldDirect} na mão · perdeu {totals.loss}
+              Produziu {totals.produced} · vendeu {totals.soldDirect} · perdeu {totals.loss}
             </p>
           </section>
           <p className={styles.footnote}>As vendas do Açougue entram pelo acerto, na aba Açougue.</p>
@@ -264,8 +264,8 @@ function ProductCard({
   const note = oversold
     ? check.explanation
     : check.delivered > 0
-      ? `Levou ${check.delivered} ao Açougue · em casa: ${check.leftover}`
-      : `Em casa no fim: ${check.leftover}`;
+      ? `Levou ${check.delivered} ao Açougue · sobrou ${check.leftover}`
+      : `Sobrou ${check.leftover}`;
 
   return (
     <section className={`${styles.card} ${check.ok ? '' : styles.cardInvalid}`} aria-label={product.name}>
@@ -289,7 +289,7 @@ function ProductCard({
       <div className={styles.pair}>
         <Stepper label="Produziu" value={card.produced} onChange={(produced) => onChange({ produced })} />
         <Stepper
-          label="Vendeu na mão"
+          label="Vendeu"
           value={card.soldDirect}
           invalid={oversold}
           onChange={(soldDirect) => onChange({ soldDirect })}

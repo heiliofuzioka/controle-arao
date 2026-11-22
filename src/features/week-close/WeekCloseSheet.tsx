@@ -264,8 +264,8 @@ function ProductCard({
   const note = oversold
     ? check.explanation
     : check.delivered > 0
-      ? `Levou ${check.delivered} ao Açougue · sobrou ${check.leftover}`
-      : `Sobrou ${check.leftover}`;
+      ? `Levou ${check.delivered} ao Açougue · em estoque: ${check.leftover}`
+      : `Em estoque: ${check.leftover}`;
 
   return (
     <section className={`${styles.card} ${check.ok ? '' : styles.cardInvalid}`} aria-label={product.name}>

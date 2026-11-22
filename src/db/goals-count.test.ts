@@ -29,7 +29,7 @@ describe('contar estoque', () => {
 
   it('contar de novo igual não cria nada; diferente corrige', async () => {
     await saveStockCount(db, '2026-11-22', [{ productId: gelinho, home: 30, consignment: 4 }]);
-    expect(await saveStockCount(db, '2026-11-22', [{ productId: gelinho, home: 30, consignment: 4 }])).toBe(0);
+    expect(await saveStockCount(db, '2026-11-22', [{ productId: gelinho, home: 30, consignment: 4 }])).toBe(0); // já contado: nada novo
     await saveStockCount(db, '2026-11-23', [{ productId: gelinho, home: 28, consignment: 4 }]);
     const last = (await db.stockAdjustments.toArray()).find((a) => a.reason === 'correction');
     expect(last).toMatchObject({ delta: -2, reason: 'correction', location: 'home' });

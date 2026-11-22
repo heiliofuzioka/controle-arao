@@ -75,19 +75,16 @@
   font-weight: var(--peso-forte);
   line-height: var(--tipo-texto-linha);
   color: var(--cor-texto);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
+/* O detalhe quebra em mais linhas, como nas telas ("Produziu 40 · vendeu 36 · / sobrou 4"). */
 .detail {
   font-weight: var(--peso-rotulo);
   font-size: var(--tipo-rotulo);
   line-height: var(--tipo-rotulo-linha);
   color: var(--cor-texto-secundario);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .value {

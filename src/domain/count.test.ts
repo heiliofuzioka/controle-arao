@@ -37,7 +37,9 @@ describe('contar estoque', () => {
     expect(plan.map((a) => [a.productId, a.location, a.pointId, a.delta, a.reason])).toEqual([
       [P, 'home', undefined, 30, 'initial_count'],
       [P, 'consignment', BUTCHER, 4, 'initial_count'],
+      [OTHER, 'home', undefined, 0, 'initial_count'], // contou zero: fica registrado
     ]);
+    expect(isCounted(stockData({ adjustments: plan }), OTHER)).toBe(true);
     const after = stockData({ adjustments: plan });
     expect(homeStock(after, P)).toBe(30);
     expect(consignmentStock(after, P)).toBe(4);

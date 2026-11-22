@@ -268,6 +268,13 @@ lucro por unidade   = preço − custo por unidade
 
 0. **Abertura e boas-vindas:** veja "Logo, ícone e abertura".
 1. **Início (mês atual):** faturamento, recebido e a receber, despesas, lucro estimado, gastos pessoais e sobra; meta do mês; estoque em casa e no Açougue; botões grandes: **Fechar a semana**, Açougue, Despesa e Gasto pessoal; avisos (backup, semana sem fechamento).
+   - **Contar estoque** (decidido em 22/11, adiantado do passo 8, sem desenho próprio): folha com um card por produto e os passos "Em casa" e "No Açougue", começando no que o app calcula. Grava só a diferença como ajuste (`initial_count` na primeira vez, `correction` depois); contar zero na primeira vez também fica registrado. Abre pelo "Contar" do aviso e ao lado de "Estoque". Produto sem nenhum registro (contagem, fechamento ou entrega) aparece como "Ainda não contado" e "—".
+   - **Metas** (decidido em 22/11, adiantado do passo 8): a tela 37 abre pelo "Definir meta"/"Mudar meta" do card "Meta do mês", com botão de voltar. O card do Início mostra as barras das metas que existirem (faturamento e lucro estimado).
+   - **Aviso de backup** fica escondido até o backup existir (passo 8).
+   - **Aviso da semana passada** só aparece depois que o Arão já fechou alguma semana no app (no primeiro uso, só o "Comece contando").
+   - Lucro estimado sem receita cadastrada mostra "Falta o custo das receitas" embaixo do valor.
+   - Em telas baixas (celular deitado, iPhone pequeno), os atalhos rolam junto com a tela em vez de ficarem presos embaixo.
+   - **Provisório:** a lista "Últimos lançamentos" fica no fim do Início até o Fechamento do mês (passo 6c) trazer a lista de despesas; é por ela que se edita despesa e gasto pessoal.
 2. **Fechar a semana (folha):** veja a seção acima.
 3. **Açougue:** saldo por produto, Entregar e Fazer acerto, acertos não pagos com "Recebi".
 4. **Despesa / Gasto pessoal (folhas):** valor, data (hoje por padrão, toque para mudar), categoria em botões (12 + as criadas) e descrição curta.

@@ -1,0 +1,198 @@
+/* ── Card azul de destaque ── */
+.hero {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  min-width: 0;
+  padding: var(--espaco-16);
+  border-radius: var(--raio-card);
+  background: var(--cor-acao);
+}
+
+.heroLabel {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-sobre-acao-secundario);
+}
+
+.heroValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero-grande);
+  line-height: var(--tipo-numero-grande-linha);
+  letter-spacing: var(--aperto-titulo);
+  color: var(--cor-texto-sobre-acao);
+  overflow-wrap: anywhere;
+}
+
+/* ── Card de total ── */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  min-width: 0;
+  padding: var(--espaco-16);
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo-card);
+}
+
+.statLabel {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}
+
+.statValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero);
+  line-height: var(--tipo-numero-linha);
+  letter-spacing: var(--aperto-numero);
+  color: var(--cor-texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Valores longos em telas estreitas: diminui um pouco em vez de cortar. */
+@media (max-width: 360px) {
+  .statValue {
+    font-size: 24px;
+  }
+}
+
+.statDetail {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}
+
+.pair {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espaco-8);
+}
+
+/* ── Card com título e metas ── */
+.titled {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: var(--espaco-16);
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo-card);
+}
+
+.titledTitle {
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+}
+
+.goal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-6);
+}
+
+.goalHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espaco-8);
+}
+
+.goalLabel {
+  flex: 1 1 0;
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}
+
+.goalPercent {
+  font-weight: var(--peso-forte);
+}
+
+.goalValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+}
+
+.goalTrack {
+  height: 10px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-fundo-recuo);
+  overflow: hidden;
+}
+
+.goalFill {
+  height: 10px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-acao);
+}
+
+.goalSuccess {
+  background: var(--cor-sucesso);
+}
+
+.goalDetail {
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  color: var(--cor-texto-secundario);
+}
+
+/* ── Seletor de período ── */
+.picker {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: var(--espaco-4);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-fundo-card);
+}
+
+.pickerButton {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0;
+  background: var(--cor-fundo-recuo);
+  color: var(--cor-texto);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pickerButton:disabled {
+  opacity: 0.4;
+}
+
+.pickerLabel {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-weight: var(--peso-forte);
+}
+
+.sectionTitle {
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+}
+
+.footnote {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}

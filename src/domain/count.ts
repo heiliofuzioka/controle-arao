@@ -43,6 +43,11 @@ export function planStockCount(args: {
     if (homeDelta !== 0) {
       adjustments.push({ ...newBase(newId(), now), date, productId: count.productId, location: 'home', delta: homeDelta, reason });
     }
+    // Primeira contagem que bate com o calculado (ex.: tudo zero): registra mesmo assim,
+    // para o produto deixar de aparecer como "Ainda não contado".
+    if (homeDelta === 0 && consignmentDelta === 0 && reason === 'initial_count') {
+      adjustments.push({ ...newBase(newId(), now), date, productId: count.productId, location: 'home', delta: 0, reason });
+    }
     if (consignmentDelta !== 0) {
       adjustments.push({
         ...newBase(newId(), now),

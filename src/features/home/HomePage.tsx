@@ -2,12 +2,17 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shortcut } from '../../components/buttons';
-import { EntryList, EntryRow, IconBadge, ProductBadge } from '../../components/EntryList';
+import { CardPair, GoalBar, HeroCard, SectionTitle, StatCard, TitledCard } from '../../components/cards';
+import { EntryList, EntryRow, ProductBadge } from '../../components/EntryList';
 import { Notice } from '../../components/Notice';
-import { TabLayout } from '../../components/TabLayout';
+import { ActionPair, PageTitle, TabLayout } from '../../components/TabLayout';
 import { db } from '../../db/db';
+import { loadActiveProducts } from '../../db/operations';
+import { loadHomeData } from '../../db/queries';
+import { toLocalDate } from '../../domain/dates';
+import { homeSummary } from '../../domain/home';
 import type { Delivery, Expense, LocalDate, PersonalExpense, Settlement } from '../../domain/types';
-import { formatCount, formatShortDate, formatWeekLabel } from '../../lib/format';
+import { formatMonthName } from '../../lib/format';
 import { formatCents } from '../../lib/money';
 import { isStandalone } from '../../lib/standalone';
 import { DeliverySheet } from '../butcher/DeliverySheet';
@@ -15,8 +20,10 @@ import { SettlementSheet } from '../butcher/SettlementSheet';
 import { ExpenseSheet } from '../expense/ExpenseSheet';
 import { PersonalExpenseSheet } from '../personal/PersonalExpenseSheet';
 import { WeekCloseSheet } from '../week-close/WeekCloseSheet';
+import { CountSheet } from './CountSheet';
 import styles from './HomePage.module.css';
-import { recentEntries, type RecentEntry } from './recent';
+import type { RecentEntry } from './recent';
+import { RecentList } from './RecentList';
 
 type OpenSheet =
   | { kind: 'week'; weekStart?: LocalDate }
@@ -24,46 +31,23 @@ type OpenSheet =
   | { kind: 'personal'; personalExpense?: PersonalExpense }
   | { kind: 'delivery'; delivery: Delivery }
   | { kind: 'settlement'; settlement: Settlement }
+  | { kind: 'count' }
   | null;
 
-const joinDetail = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(' · ');
-
-/**
- * Início PROVISÓRIO: os atalhos e a lista dos últimos lançamentos, para abrir,
- * editar e apagar. O Início de verdade (totais, estoque, meta, avisos) é do passo 6.
- */
+/** Início (mês atual): vendas, totais, meta, estoque e os atalhos. */
 export function HomePage() {
   const [sheet, setSheet] = useState<OpenSheet>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [showInstall, setShowInstall] = useState(false);
   const installed = isStandalone();
   const navigate = useNavigate();
+  const today = toLocalDate(new Date());
 
-  const entries = useLiveQuery(async () => {
-    const [weekCloses, sales, expenses, expenseCategories, personalExpenses, deliveries, settlements, products] =
-      await Promise.all([
-        db.weekCloses.toArray(),
-        db.sales.toArray(),
-        db.expenses.toArray(),
-        db.expenseCategories.toArray(),
-        db.personalExpenses.toArray(),
-        db.deliveries.toArray(),
-        db.settlements.toArray(),
-        db.products.toArray(),
-      ]);
-    return recentEntries({
-      weekCloses,
-      sales,
-      expenses,
-      expenseCategories,
-      personalExpenses,
-      deliveries,
-      settlements,
-      products,
-    });
-  }, []);
+  const home = useLiveQuery(async () => {
+    const [data, products] = await Promise.all([loadHomeData(db), loadActiveProducts(db)]);
+    return homeSummary(data, products, today);
+  }, [today]);
 
-  // O aviso de "salvo" some sozinho.
   useEffect(() => {
     if (!message) return;
     const timer = window.setTimeout(() => setMessage(null), 3500);
@@ -84,12 +68,35 @@ export function HomePage() {
     else setSheet({ kind: 'settlement', settlement: entry.settlement });
   };
 
+  const shortcuts = (
+    <>
+      <Shortcut icon="calendar" highlight onClick={() => setSheet({ kind: 'week' })}>
+        Fechar a semana
+      </Shortcut>
+      <ActionPair>
+        <Shortcut icon="store" onClick={() => navigate('/acougue')}>
+          Açougue
+        </Shortcut>
+        <Shortcut icon="receipt" onClick={() => setSheet({ kind: 'expense' })}>
+          Despesa
+        </Shortcut>
+      </ActionPair>
+      <Shortcut icon="wallet" onClick={() => setSheet({ kind: 'personal' })}>
+        Gasto pessoal
+      </Shortcut>
+    </>
+  );
+
+  const s = home?.summary;
+
   return (
-    <TabLayout>
-      <header className={styles.header}>
-        <img className={styles.mascot} src={`${import.meta.env.BASE_URL}brand/arao-mascote-azul.svg`} alt="" />
-        <h1 className={styles.title}>Olá, Arão!</h1>
-      </header>
+    <TabLayout actions={shortcuts} actionsLayout="stack">
+      <PageTitle
+        aside={today.slice(0, 4)}
+        end={<img className={styles.mascot} src={`${import.meta.env.BASE_URL}brand/arao-mascote-azul.svg`} alt="" />}
+      >
+        {formatMonthName(today.slice(0, 7))}
+      </PageTitle>
 
       {message && <Notice kind="success">{message}</Notice>}
 
@@ -104,103 +111,101 @@ export function HomePage() {
         </p>
       )}
 
-      <nav className={styles.shortcuts} aria-label="Lançar">
-        <Shortcut icon="calendar" highlight onClick={() => setSheet({ kind: 'week' })}>
-          Fechar a semana
-        </Shortcut>
-        <Shortcut icon="store" onClick={() => navigate('/acougue')}>
-          Açougue
-        </Shortcut>
-        <Shortcut icon="receipt" onClick={() => setSheet({ kind: 'expense' })}>
-          Despesa
-        </Shortcut>
-        <Shortcut icon="wallet" onClick={() => setSheet({ kind: 'personal' })}>
-          Gasto pessoal
-        </Shortcut>
-      </nav>
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Últimos lançamentos</h2>
-        {entries && entries.length === 0 && (
-          <p className={styles.hint}>Nada lançado ainda. Comece fechando a semana.</p>
-        )}
-        {entries && entries.length > 0 && (
-          <EntryList>
-            {entries.map((entry) => (
-              <RecentRow key={entry.key} entry={entry} onClick={() => open(entry)} />
-            ))}
-          </EntryList>
-        )}
-      </section>
-
-      <p className={styles.version}>Versão {__APP_VERSION__}</p>
-
-      {sheet?.kind === 'week' && (
-        <WeekCloseSheet initialWeekStart={sheet.weekStart} onClose={close} onSaved={saved} />
+      {home?.showCountNotice && (
+        <Notice action={{ label: 'Contar', onClick: () => setSheet({ kind: 'count' }) }}>
+          Comece contando o que você tem em casa hoje
+        </Notice>
       )}
+      {home?.unclosedWeek && (
+        <Notice kind="attention" action={{ label: 'Fechar', onClick: () => setSheet({ kind: 'week', weekStart: home.unclosedWeek! }) }}>
+          A semana passada ainda não foi fechada
+        </Notice>
+      )}
+
+      {home && s && (
+        <>
+          <HeroCard
+            label="Vendas do mês"
+            value={formatCents(s.revenueCents)}
+            detail={
+              s.revenueCents === 0
+                ? 'Nenhuma venda ainda'
+                : `${formatCents(s.receivedCents)} recebido · ${formatCents(s.pendingCents)} a receber`
+            }
+          />
+          <CardPair>
+            <StatCard label="Despesas" value={formatCents(s.expensesCents)} />
+            <StatCard
+              label="Lucro estimado"
+              value={formatCents(home.profit.profitCents)}
+              detail={home.profit.complete ? undefined : 'Falta o custo das receitas'}
+            />
+          </CardPair>
+          <CardPair>
+            <StatCard label="Gastos pessoais" value={formatCents(s.personalCents)} />
+            <StatCard label="Sobrou" value={formatCents(s.leftoverCents)} />
+          </CardPair>
+
+          <TitledCard title="Meta do mês">
+            {home.goals.revenue && <GoalBar label="Faturamento" progress={home.goals.revenue} />}
+            {home.goals.profit && <GoalBar label="Lucro estimado" progress={home.goals.profit} tone="success" />}
+            {!home.goals.revenue && !home.goals.profit && (
+              <>
+                <p className={styles.hint}>Defina quanto quer vender e lucrar no mês.</p>
+                <button type="button" className={styles.link} onClick={() => navigate('/metas')}>
+                  Definir meta
+                </button>
+              </>
+            )}
+            {(home.goals.revenue || home.goals.profit) && (
+              <button type="button" className={styles.link} onClick={() => navigate('/metas')}>
+                Mudar meta
+              </button>
+            )}
+          </TitledCard>
+
+          <section className={styles.section}>
+            <div className={styles.sectionHead}>
+              <SectionTitle>Estoque</SectionTitle>
+              {!home.showCountNotice && (
+                <button type="button" className={styles.link} onClick={() => setSheet({ kind: 'count' })}>
+                  Contar
+                </button>
+              )}
+            </div>
+            <EntryList>
+              {home.stock.map((row) => (
+                <EntryRow
+                  key={row.product.id}
+                  badge={<ProductBadge code={row.product.code} />}
+                  title={row.product.name}
+                  detail={row.counted ? `Em casa ${row.home} · No Açougue ${row.consignment}` : 'Ainda não contado'}
+                  value={row.counted ? String(row.total) : '—'}
+                />
+              ))}
+            </EntryList>
+          </section>
+
+          <section className={styles.section}>
+            <SectionTitle>Últimos lançamentos</SectionTitle>
+            <RecentList onOpen={open} />
+          </section>
+
+          {/* Em telas baixas os atalhos rolam junto (o bloco preso embaixo some). */}
+          <div className={styles.inlineShortcuts}>{shortcuts}</div>
+
+          <p className={styles.version}>Versão {__APP_VERSION__}</p>
+        </>
+      )}
+
+      {sheet?.kind === 'week' && <WeekCloseSheet initialWeekStart={sheet.weekStart} onClose={close} onSaved={saved} />}
       {sheet?.kind === 'expense' && <ExpenseSheet expense={sheet.expense} onClose={close} onSaved={saved} />}
       {sheet?.kind === 'personal' && (
         <PersonalExpenseSheet personalExpense={sheet.personalExpense} onClose={close} onSaved={saved} />
       )}
       {sheet?.kind === 'delivery' && <DeliverySheet delivery={sheet.delivery} onClose={close} onSaved={saved} />}
       {sheet?.kind === 'settlement' && <SettlementSheet settlement={sheet.settlement} onClose={close} onSaved={saved} />}
+      {sheet?.kind === 'count' && <CountSheet onClose={close} onSaved={saved} />}
     </TabLayout>
-  );
-}
-
-function RecentRow({ entry, onClick }: { entry: RecentEntry; onClick: () => void }) {
-  if (entry.kind === 'week') {
-    const { produced, soldDirect } = entry.totals;
-    return (
-      <EntryRow
-        badge={<IconBadge icon="calendar" />}
-        title={formatWeekLabel(entry.weekStart)}
-        detail={`Produziu ${produced} · vendeu ${soldDirect} na mão`}
-        value={formatCents(entry.totals.valueCents)}
-        onClick={onClick}
-      />
-    );
-  }
-  if (entry.kind === 'expense') {
-    return (
-      <EntryRow
-        badge={<IconBadge icon="receipt" />}
-        title={entry.categoryName}
-        detail={joinDetail(entry.expense.description, formatShortDate(entry.date))}
-        value={`− ${formatCents(entry.expense.valueCents)}`}
-        onClick={onClick}
-      />
-    );
-  }
-  if (entry.kind === 'delivery') {
-    return (
-      <EntryRow
-        badge={<ProductBadge code={entry.product?.code ?? '?'} />}
-        title={`Entrega · ${formatCount(entry.delivery.quantity, entry.product?.name ?? 'produto')}`}
-        detail={`Açougue · ${formatShortDate(entry.date)}`}
-        onClick={onClick}
-      />
-    );
-  }
-  if (entry.kind === 'settlement') {
-    const s = entry.settlement;
-    return (
-      <EntryRow
-        badge={<ProductBadge code={entry.product?.code ?? '?'} />}
-        title={`Acerto · ${formatCount(s.soldQuantity, entry.product?.name ?? 'produto')}`}
-        detail={joinDetail(s.paid ? 'Recebido' : 'A receber', formatShortDate(entry.date))}
-        value={formatCents(s.valueCents)}
-        onClick={onClick}
-      />
-    );
-  }
-  return (
-    <EntryRow
-      badge={<IconBadge icon="wallet" />}
-      title="Gasto pessoal"
-      detail={joinDetail(entry.personalExpense.description, formatShortDate(entry.date))}
-      value={`− ${formatCents(entry.personalExpense.valueCents)}`}
-      onClick={onClick}
-    />
   );
 }

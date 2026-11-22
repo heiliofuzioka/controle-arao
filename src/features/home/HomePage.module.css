@@ -1,28 +1,7 @@
-.header {
-  display: flex;
-  align-items: center;
-  gap: var(--espaco-12);
-  padding-top: var(--espaco-8);
-}
-
 .mascot {
   width: 48px;
   height: auto;
   flex: none;
-}
-
-.title {
-  font-family: var(--fonte-titulo);
-  font-weight: var(--peso-titulo);
-  font-size: var(--tipo-titulo);
-  line-height: var(--tipo-titulo-linha);
-  letter-spacing: var(--aperto-titulo);
-}
-
-.shortcuts {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-8);
 }
 
 .section {
@@ -31,10 +10,11 @@
   gap: var(--espaco-8);
 }
 
-.sectionTitle {
-  font-weight: var(--peso-forte);
-  font-size: var(--tipo-secao);
-  line-height: var(--tipo-secao-linha);
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-8);
 }
 
 .hint {
@@ -42,6 +22,30 @@
   font-size: var(--tipo-rotulo);
   line-height: var(--tipo-rotulo-linha);
   font-weight: var(--peso-rotulo);
+}
+
+.link {
+  align-self: flex-start;
+  min-height: var(--toque-minimo);
+  margin: calc(-1 * var(--espaco-12)) 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--cor-acao);
+  font-weight: var(--peso-forte);
+}
+
+.inlineShortcuts {
+  display: none;
+}
+
+/* Mesmo limite de TabLayout.module.css (.actionsStack). */
+@media (max-height: 640px) {
+  .inlineShortcuts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-8);
+  }
 }
 
 .version {

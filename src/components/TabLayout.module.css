@@ -38,8 +38,67 @@
   padding-right: var(--espaco-12);
 }
 
-.title {
+/* Atalhos empilhados (Início) */
+.actionsStack {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+  padding: var(--espaco-12) calc(var(--margem-pagina) + var(--area-segura-direita)) var(--espaco-12)
+    calc(var(--margem-pagina) + var(--area-segura-esquerda));
+}
+
+.actionPair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espaco-8);
+}
+
+/* Em telas baixas (celular deitado ou iPhone pequeno), os atalhos rolam junto com a tela. */
+@media (max-height: 640px) {
+  .actionsStack {
+    display: none;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-8);
   padding-top: var(--espaco-8);
+}
+
+.aside {
+  margin-left: var(--espaco-8);
+  font-family: var(--fonte-texto);
+  font-weight: var(--peso-texto);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+  letter-spacing: 0;
+  color: var(--cor-texto-secundario);
+}
+
+.back {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0;
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.titleGrow {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.title {
   font-family: var(--fonte-titulo);
   font-weight: var(--peso-titulo);
   font-size: var(--tipo-titulo);

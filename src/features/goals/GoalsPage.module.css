@@ -1,0 +1,6 @@
+.hint {
+  color: var(--cor-texto-secundario);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  font-weight: var(--peso-rotulo);
+}

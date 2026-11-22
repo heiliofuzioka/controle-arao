@@ -1,0 +1,5 @@
+.summary {
+  flex: none;
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-texto);
+}

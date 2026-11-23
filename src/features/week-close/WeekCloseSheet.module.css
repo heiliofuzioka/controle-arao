@@ -75,7 +75,7 @@
   color: var(--cor-texto-secundario);
 }
 
-/* "Venda na mão" + valor: o bloco inteiro é o alvo do toque (44px). */
+/* "Vendido" + valor: o bloco inteiro é o alvo do toque (44px). */
 .value {
   flex: none;
   min-height: var(--toque-minimo);

@@ -231,7 +231,7 @@ export function WeekCloseSheet({ initialWeekStart, onClose, onSaved }: Props) {
       {ready && (
         <>
           <section className={styles.total}>
-            <p className={styles.totalLabel}>Venda na mão da semana</p>
+            <p className={styles.totalLabel}>Vendido na semana</p>
             <p className={styles.totalValue}>{formatCents(totals.valueCents)}</p>
             <p className={styles.totalLabel}>
               Produziu {totals.produced} · vendeu {totals.soldDirect} · perdeu {totals.loss}
@@ -306,7 +306,7 @@ function ProductCard({
   );
 }
 
-/** "Venda na mão R$ 180,00": tocar no valor deixa digitar outro (desconto). */
+/** "Vendido R$ 180,00": tocar no valor deixa digitar outro (desconto). */
 function ValueButton({ valueCents, onChange }: { valueCents: Cents; onChange: (valueCents: Cents) => void }) {
   const [text, setText] = useState<string | null>(null);
 
@@ -321,10 +321,10 @@ function ValueButton({ valueCents, onChange }: { valueCents: Cents; onChange: (v
       <button
         type="button"
         className={styles.value}
-        aria-label={`Venda na mão: ${formatCents(valueCents)}. Toque para mudar o valor.`}
+        aria-label={`Vendido: ${formatCents(valueCents)}. Toque para mudar o valor.`}
         onClick={() => setText(formatCentsPlain(valueCents))}
       >
-        <span className={styles.valueLabel}>Venda na mão</span>
+        <span className={styles.valueLabel}>Vendido</span>
         <span className={styles.valueNumber}>{formatCents(valueCents)}</span>
       </button>
     );
@@ -332,7 +332,7 @@ function ValueButton({ valueCents, onChange }: { valueCents: Cents; onChange: (v
 
   return (
     <label className={styles.value}>
-      <span className={styles.valueLabel}>Venda na mão</span>
+      <span className={styles.valueLabel}>Vendido</span>
       <input
         className={styles.valueInput}
         inputMode="decimal"

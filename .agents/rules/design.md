@@ -59,7 +59,7 @@ description: "Visual do app: telas, componentes, cores, tipografia, navegação,
 2. **Fechar a semana (folha):** veja a seção acima.
 3. **Açougue:** saldo por produto, Entregar e Fazer acerto, acertos não pagos com "Recebi".
 4. **Despesa / Gasto pessoal (folhas):** valor, data (hoje por padrão, toque para mudar), categoria em botões (12 + as criadas) e descrição curta.
-5. **Semana:** faturamento da semana, divisão na mão × Açougue, e por produto: **produzido, vendido (na mão + Açougue), sobrou e faturamento**; tocar num produto abre os lançamentos dele (fechamento, entregas e acertos). Semana sem fechamento mostra o botão "Fechar a semana".
+5. **Semana:** faturamento da semana, divisão na mão × Açougue, e por produto: **produzido, vendido (na mão + Açougue), em estoque e faturamento** ("em estoque" no lugar de "sobrou", pedido de 22/11); tocar num produto abre os lançamentos dele (fechamento, entregas e acertos). Semana sem fechamento mostra o botão "Fechar a semana".
 6. **Painel (aba, fundo escuro):** veja a seção "Painel".
 7. **Fechamento do mês (pelo Painel):** vendas, despesas, saldo, lucro estimado e sobra; metas; produzido, vendido e faturamento por produto; **lista das despesas do mês com "Adicionar despesa"** e total por categoria; semanas do mês; comparação com o mês anterior.
 8. **Ano (pelo Painel):** janeiro a dezembro em colunas (faturamento com lucro dentro) e lista mês a mês com crescimento ou queda; tocar num mês abre o Fechamento dele; trocar o ano e comparar com outro ano.

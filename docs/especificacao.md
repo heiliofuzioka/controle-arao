@@ -195,7 +195,7 @@ A UI aceita kg e L, mas grava em g e ml (`packageQty` e `quantity` ficam na unid
 
 ### Fechamento da semana (substitui a venda por transação; decisão de 08/11)
 
-- Uma folha "Fechar a semana" com um card por produto. Em cada card: **Produziu**, **Vendeu** e **Perdeu** (opcional), em passos de − / +; o card mostra o faturamento da venda na mão (vendidos × preço, editável para desconto) e quanto sobrou em casa, já descontando o que foi levado ao Açougue ("Em estoque: 4" ou "Levou 30 ao Açougue · em estoque: 0"; textos trocados a pedido do Heilio em 22/11).
+- Uma folha "Fechar a semana" com um card por produto. Em cada card: **Produziu**, **Vendeu** e **Perdeu** (opcional), em passos de − / +; o card mostra o faturamento da venda na mão (vendidos × preço, editável para desconto) e quanto sobrou em casa, já descontando o que foi levado ao Açougue ("Em estoque: 4" ou "Levou 30 ao Açougue · em estoque: 0"); o valor do card se chama "Vendido" e o total da folha "Vendido na semana" (textos trocados a pedido do Heilio em 22/11).
 - No fim da folha: total da venda na mão da semana e o aviso de que as vendas do Açougue entram pelo acerto.
 - **Erro:** vender mais do que tinha em casa (estoque do início da semana + produzido − perdido − entregue) bloqueia o salvar e marca o card em vermelho com a conta ("Tinha 2 em casa + 10 feitos = 12") e o aviso "Vendeu mais do que tinha (12). Confira os números.".
 - A semana vai de segunda a domingo; o fechamento vem marcado com a semana atual, e dá para escolher outra (só a atual e as anteriores; semanas futuras ficam bloqueadas).
@@ -278,7 +278,7 @@ lucro por unidade   = preço − custo por unidade
 2. **Fechar a semana (folha):** veja a seção acima.
 3. **Açougue:** saldo por produto, Entregar e Fazer acerto, acertos não pagos com "Recebi".
 4. **Despesa / Gasto pessoal (folhas):** valor, data (hoje por padrão, toque para mudar), categoria em botões (12 + as criadas) e descrição curta.
-5. **Semana:** faturamento da semana, divisão na mão × Açougue, e por produto: **produzido, vendido (na mão + Açougue), sobrou e faturamento**; tocar num produto abre os lançamentos dele (fechamento, entregas e acertos). Semana sem fechamento mostra o botão "Fechar a semana".
+5. **Semana:** faturamento da semana, divisão na mão × Açougue, e por produto: **produzido, vendido (na mão + Açougue), em estoque e faturamento** ("em estoque" no lugar de "sobrou", pedido de 22/11); tocar num produto abre os lançamentos dele (fechamento, entregas e acertos). Semana sem fechamento mostra o botão "Fechar a semana".
 6. **Painel (aba, fundo escuro):** veja a seção "Painel".
 7. **Fechamento do mês (pelo Painel):** vendas, despesas, saldo, lucro estimado e sobra; metas; produzido, vendido e faturamento por produto; **lista das despesas do mês com "Adicionar despesa"** e total por categoria; semanas do mês; comparação com o mês anterior.
 8. **Ano (pelo Painel):** janeiro a dezembro em colunas (faturamento com lucro dentro) e lista mês a mês com crescimento ou queda; tocar num mês abre o Fechamento dele; trocar o ano e comparar com outro ano.

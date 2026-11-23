@@ -27,7 +27,7 @@ type OpenSheet =
 
 const sold = (n: number) => (n === 1 ? '1 vendido' : `${n} vendidos`);
 
-/** Aba Semana: faturamento, na mão × Açougue e, por produto, produzido, vendido, sobrou e faturamento. */
+/** Aba Semana: faturamento, na mão × Açougue e, por produto, produzido, vendido, em estoque e faturamento. */
 export function WeekPage() {
   const currentWeek = weekStartOf(toLocalDate(new Date()));
   const [weekStart, setWeekStart] = useState(currentWeek);
@@ -77,7 +77,7 @@ export function WeekPage() {
             value={formatCents(report.revenueCents)}
             detail={
               report.closed
-                ? `Produziu ${report.produced} · vendeu ${report.sold} · sobrou ${report.leftover}`
+                ? `Produziu ${report.produced} · vendeu ${report.sold} · em estoque ${report.leftover}`
                 : 'Semana ainda não fechada'
             }
           />
@@ -102,7 +102,7 @@ export function WeekPage() {
                     key={row.product.id}
                     badge={<ProductBadge code={row.product.code} />}
                     title={row.product.name}
-                    detail={`Produziu ${row.produced} · vendeu ${row.sold} · sobrou ${row.leftover}`}
+                    detail={`Produziu ${row.produced} · vendeu ${row.sold} · em estoque ${row.leftover}`}
                     value={formatCents(row.revenueCents)}
                     onClick={() => setSheet({ kind: 'product', product: row.product })}
                   />

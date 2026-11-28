@@ -35,7 +35,7 @@ export function productErrors(input: ProductInput, products: Product[], editingI
 }
 
 /** Erro do nome de uma categoria (vazio ou repetido). */
-export function categoryNameError(name: string, categories: Category[], editingId?: ID): string | null {
+export function categoryNameError(name: string, categories: Pick<Category, 'id' | 'name' | 'deletedAt'>[], editingId?: ID): string | null {
   if (!name.trim()) return 'Coloque o nome da categoria';
   if (alive(categories).some((c) => c.id !== editingId && same(c.name, name))) return 'Já existe uma categoria com esse nome';
   return null;

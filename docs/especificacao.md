@@ -250,7 +250,7 @@ Ordem (em pé, rolando): cabeçalho → "Sobrou no período" → filtro → trê
   - Ondas: o período inteiro, com no mínimo as últimas 8 semanas; a faixa do período fica destacada. O card com os valores aparece ao tocar no gráfico. Produto novo vira uma onda a mais, com cor neutra.
   - Deitado: o gráfico mostrado depende do filtro (Semana, Mês e 2 meses → ondas; 6 meses e Ano → colunas).
   - Card "Metas de <mês>" é sempre do mês atual, qualquer que seja o filtro.
-  - Alertas no topo por enquanto: acerto a receber há mais de 14 dias, produto vendido no período sem receita ("o lucro fica incompleto", desde 28/11) e semana passada sem fechamento (este só depois de ter fechado alguma). O de backup entra no passo 8.
+  - Alertas no topo por enquanto: acerto a receber há mais de 14 dias, produto vendido no período sem receita ("o lucro fica incompleto", desde 28/11) e semana passada sem fechamento (este só depois de ter fechado alguma). O de backup vem antes de todos (passo 8).
   - Lucro estimado mostra "Cadastre as receitas para calcular" enquanto não houver receita.
   - Os botões "Fechamento do mês" e "Ver o ano" entram na parte 6c, junto com as telas.
   - O Painel é carregado só quando a aba é aberta (os gráficos pesam); continua funcionando sem internet.
@@ -304,7 +304,8 @@ lucro por unidade   = preço − custo por unidade
 11. **Categorias e produtos (Ajustes):** criar, editar e organizar categorias e produtos (nome, categoria, sigla, preço, ativo). Produto novo aparece no fechamento da semana, nos gráficos e nas receitas.
    - Decisões de 28/11 (passo 7): "Editar" ao lado do nome da categoria renomeia ou apaga (só categoria sem produto). Na folha do produto, "+ Nova" cria a categoria na hora. Produto que já tem lançamentos ou receitas não se apaga: desliga "Ainda vendo" (some do fechamento, o histórico fica). Sigla com 1 ou 2 letras, sem repetir.
 12. **Ajustes:** "Backup e seus dados" primeiro (Fazer backup, Restaurar, Exportar CSV); depois Produtos e receitas (Receitas e preços, Categorias e produtos, Metas); depois Despesas e estoque (Categorias de despesa, Contar estoque); no fim, mascote + "Controle Arão · versão 1.0".
-   - Desde o passo 7 (28/11) a aba Ajustes já aparece, só com Produtos e receitas e Contar estoque. "Backup e seus dados" e "Categorias de despesa" entram no passo 8.
+   - Ajustes completo desde o passo 8 (28/11). "Exportar planilha" exporta direto; "Fazer backup" abre a folha (telas 41 e 42), que também tem o botão da planilha.
+   - Categorias de despesa (28/11, sem desenho): lista com quantas despesas cada uma tem; folha com o nome e "Já entra no custo das receitas" (como Ingredientes e Embalagens: não desconta de novo no lucro). Só apaga categoria sem despesa.
 
 Todo lançamento pode ser editado ou apagado (exclusão marcada), e os totais se recalculam na hora (`useLiveQuery`).
 
@@ -327,6 +328,12 @@ Todo lançamento pode ser editado ou apagado (exclusão marcada), e os totais se
   - Exportar JSON `{ app: 'controle-arao', schemaVersion, exportedAt, tables: {...} }` via `navigator.share` (cai em Arquivos, iCloud Drive ou WhatsApp), com fallback para download. Nome do arquivo: `controle-arao-DD-MM.json`.
   - O import valida o `schemaVersion` e substitui tudo, só depois de confirmação (botão de perigo "Substituir tudo").
   - Guardar a data do último backup.
+  - Decisões de 28/11 (passo 8; a confirmar com o Heilio):
+    - O arquivo leva todas as tabelas, inclusive o que foi apagado (`deletedAt`), menos `meta`. A data e o nome do último backup ficam em `meta` (`lastBackup`).
+    - Restaurar é a única operação que apaga de verdade: troca o conteúdo inteiro pelo do arquivo. Depois de restaurar, o backup restaurado conta como o último backup. Backup de versão mais nova que o app é recusado.
+    - Aviso "Seu último backup tem N dias" no Início (depois do aviso da semana), no topo do Painel e de Ajustes, com "Fazer agora" (abre Ajustes com a folha Fazer backup). Quem nunca fez backup vê "Você ainda não fez nenhum backup", mas só depois de ter lançado alguma coisa.
+    - Se o Arão fechar a folha de compartilhar sem escolher, o backup não conta como feito.
+    - **Planilha CSV** (`controle-arao-DD-MM.csv`): um lançamento por linha, da data mais antiga para a mais nova, com as colunas Data, Tipo (Venda, Venda no Açougue, Venda (caderno), Entrega no Açougue, Despesa, Gasto pessoal), Produto, Quantidade, Valor (R$), Categoria, Descrição e Situação (Recebido / A receber). Separador ";", vírgula decimal e acentos (BOM), para abrir direto no Excel em português.
 - **Inputs:** `font-size` de pelo menos 16px; dinheiro com `inputMode="decimal"`; quantidades com `inputMode="numeric"`.
 - **Layout:** respeitar `env(safe-area-inset-*)`. Usar `<meta name="apple-mobile-web-app-capable">`, `apple-touch-icon` (`public/brand/icone-180.png`), `apple-touch-startup-image` por tamanho de tela e orientação (em pé e deitado; prontas em `public/brand/splash/`) e `theme-color`.
 - **A abertura do iOS é uma imagem parada:** a animação acontece dentro do app, depois dela, começando do mesmo quadro.

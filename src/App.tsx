@@ -2,6 +2,7 @@ import { lazy, Suspense, type JSX } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ButcherPage } from './features/butcher/ButcherPage';
 import { CatalogPage } from './features/catalog/CatalogPage';
+import { ExpenseCategoriesPage } from './features/settings/ExpenseCategoriesPage';
 import { SettingsPage } from './features/settings/SettingsPage';
 import { GoalsPage } from './features/goals/GoalsPage';
 import { HomePage } from './features/home/HomePage';
@@ -39,6 +40,7 @@ export function App() {
         <Route path="/ano" element={later(<YearPage />)} />
         <Route path="/ajustes" element={<SettingsPage />} />
         <Route path="/produtos" element={<CatalogPage />} />
+        <Route path="/categorias-despesa" element={<ExpenseCategoriesPage />} />
         <Route path="/receitas" element={later(<RecipesPage />)} />
         <Route path="/receitas/nova" element={later(<RecipeFormPage />)} />
         <Route path="/receitas/abaixo" element={later(<BelowTargetPage />)} />

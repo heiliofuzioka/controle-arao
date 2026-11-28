@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Icon, type IconName } from './Icon';
 import styles from './TabLayout.module.css';
 
-/** Abas do app. Ajustes entrou no passo 7 (com o que já existe; backup e CSV vêm no passo 8). */
+/** Abas do app. */
 const TABS: { to: string; label: string; icon: IconName }[] = [
   { to: '/', label: 'Início', icon: 'home' },
   { to: '/acougue', label: 'Açougue', icon: 'store' },
@@ -20,6 +20,7 @@ const TAB_OF: [string, string][] = [
   ['/produtos', '/ajustes'],
   ['/receitas', '/ajustes'],
   ['/ingredientes', '/ajustes'],
+  ['/categorias-despesa', '/ajustes'],
 ];
 
 /** Tela com barra de abas: conteúdo que rola, ações presas embaixo e a Barra de abas. */

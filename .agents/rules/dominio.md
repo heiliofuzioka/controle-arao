@@ -135,7 +135,7 @@ Ordem (em pé, rolando): cabeçalho → "Sobrou no período" → filtro → trê
   - Ondas: o período inteiro, com no mínimo as últimas 8 semanas; a faixa do período fica destacada. O card com os valores aparece ao tocar no gráfico. Produto novo vira uma onda a mais, com cor neutra.
   - Deitado: o gráfico mostrado depende do filtro (Semana, Mês e 2 meses → ondas; 6 meses e Ano → colunas).
   - Card "Metas de <mês>" é sempre do mês atual, qualquer que seja o filtro.
-  - Alertas no topo por enquanto: acerto a receber há mais de 14 dias, produto vendido no período sem receita ("o lucro fica incompleto", desde 28/11) e semana passada sem fechamento (este só depois de ter fechado alguma). O de backup entra no passo 8.
+  - Alertas no topo por enquanto: acerto a receber há mais de 14 dias, produto vendido no período sem receita ("o lucro fica incompleto", desde 28/11) e semana passada sem fechamento (este só depois de ter fechado alguma). O de backup vem antes de todos (passo 8).
   - Lucro estimado mostra "Cadastre as receitas para calcular" enquanto não houver receita.
   - Os botões "Fechamento do mês" e "Ver o ano" entram na parte 6c, junto com as telas.
   - O Painel é carregado só quando a aba é aberta (os gráficos pesam); continua funcionando sem internet.

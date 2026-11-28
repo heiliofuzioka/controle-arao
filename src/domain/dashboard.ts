@@ -242,7 +242,7 @@ export type DashboardAlert =
 
 /**
  * Alertas do topo do Painel. `missingProductIds`: produtos vendidos no período sem receita
- * (o lucro estimado fica incompleto). O de backup entra no passo 8.
+ * (o lucro estimado fica incompleto). O aviso de backup é montado à parte (loadBackupStatus).
  */
 export function dashboardAlerts(
   data: { settlements: Settlement[]; weekCloses: WeekClose[]; sales: Sale[] },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { alerts, isBackupOverdue, overdueSettlements, previousWeekUnclosed, productsWithoutRecipe } from './alerts';
+import { alerts, backupReminder, isBackupOverdue, overdueSettlements, previousWeekUnclosed, productsWithoutRecipe } from './alerts';
 import { OTHER, P, product, recipe, settlement, weekClose } from './testing';
 
 const today = '2026-11-08';
@@ -44,5 +44,14 @@ describe('alertas do Painel', () => {
       { kind: 'settlement_overdue', settlementIds: ['velho'] },
       { kind: 'week_unclosed', weekStart: '2026-10-26' },
     ]);
+  });
+});
+
+describe('aviso de backup', () => {
+  it('só depois de 7 dias; nunca feito só avisa quando já tem lançamento', () => {
+    expect(backupReminder('2026-11-21', '2026-11-28', true)).toBeNull();
+    expect(backupReminder('2026-11-19', '2026-11-28', true)).toEqual({ days: 9 });
+    expect(backupReminder(undefined, '2026-11-28', false)).toBeNull();
+    expect(backupReminder(undefined, '2026-11-28', true)).toEqual({ days: null });
   });
 });

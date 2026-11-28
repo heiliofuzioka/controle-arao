@@ -1,7 +1,11 @@
 // Leituras usadas pelas telas (sempre dentro de useLiveQuery, para os totais mudarem na hora).
+import { backupReminder } from '../domain/alerts';
+import { toLocalDate } from '../domain/dates';
 import type { HomeData } from '../domain/home';
 import { unitCostByProduct } from '../domain/pricing';
-import type { SalesPoint } from '../domain/types';
+import { alive } from '../domain/records';
+import type { LocalDate, SalesPoint } from '../domain/types';
+import { loadLastBackup } from './backup';
 import type { ControleAraoDB } from './db';
 import { loadStockData } from './operations';
 
@@ -29,4 +33,19 @@ export async function loadHomeData(db: ControleAraoDB): Promise<HomeData & { poi
     unitCosts: unitCostByProduct(products, recipes, recipeItems, ingredients),
     points,
   };
+}
+
+/** Último backup e se é hora de avisar (Início, Painel e Ajustes). */
+export async function loadBackupStatus(db: ControleAraoDB, today: LocalDate) {
+  const [last, ...tables] = await Promise.all([
+    loadLastBackup(db),
+    db.weekCloses.toArray(),
+    db.expenses.toArray(),
+    db.personalExpenses.toArray(),
+    db.deliveries.toArray(),
+    db.recipes.toArray(),
+  ]);
+  const hasData = tables.some((rows) => alive(rows as { deletedAt?: string }[]).length > 0);
+  const lastDay = last ? toLocalDate(new Date(last.at)) : undefined;
+  return { last, reminder: backupReminder(lastDay, today, hasData) };
 }

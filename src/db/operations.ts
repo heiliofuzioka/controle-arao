@@ -638,3 +638,38 @@ export async function deleteRecipe(db: ControleAraoDB, id: ID, now: string = now
     }
   });
 }
+
+// ── Categorias de despesa ──
+
+/** Cria ou edita uma categoria de despesa. `isProductCost`: já entra no custo das receitas (não desconta de novo). */
+export async function saveExpenseCategory(
+  db: ControleAraoDB,
+  input: { id?: ID; name: string; isProductCost: boolean },
+  now: string = nowIso(),
+): Promise<ID> {
+  return db.transaction('rw', db.expenseCategories, async () => {
+    const error = categoryNameError(input.name, await db.expenseCategories.toArray(), input.id);
+    if (error) throw new CatalogBlockedError(error);
+    const fields = { name: input.name.trim(), isProductCost: input.isProductCost };
+    if (input.id) {
+      const current = await db.expenseCategories.get(input.id);
+      if (!current || current.deletedAt) throw new CatalogBlockedError('Essa categoria foi apagada.');
+      await db.expenseCategories.put(touch(current, fields, now));
+      return input.id;
+    }
+    const id = newId();
+    await db.expenseCategories.add({ ...newBase(id, now), ...fields });
+    return id;
+  });
+}
+
+/** Apaga uma categoria de despesa sem nenhuma despesa. */
+export async function deleteExpenseCategory(db: ControleAraoDB, id: ID, now: string = nowIso()): Promise<void> {
+  await db.transaction('rw', db.expenseCategories, db.expenses, async () => {
+    const current = await db.expenseCategories.get(id);
+    if (!current || current.deletedAt) return;
+    const used = alive(await db.expenses.where('categoryId').equals(id).toArray()).length;
+    if (used > 0) throw new CatalogBlockedError('Essa categoria já tem despesas. Mude as despesas antes de apagar.');
+    await db.expenseCategories.put(softDelete(current, now));
+  });
+}

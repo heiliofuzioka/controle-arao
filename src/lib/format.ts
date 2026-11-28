@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { parseLocalDate, shiftDays } from '../domain/dates';
+import { daysBetween, parseLocalDate, shiftDays, toLocalDate } from '../domain/dates';
 import type { LocalDate } from '../domain/types';
 
 const fmt = (date: LocalDate, pattern: string) => format(parseLocalDate(date), pattern, { locale: ptBR });
@@ -100,4 +100,22 @@ export function formatWeekCompact(weekStart: LocalDate): string {
 /** Quantidade com singular e plural escritos (palavras como "sabor/sabores"). */
 export function formatPlural(quantity: number, one: string, many: string): string {
   return `${quantity} ${quantity === 1 ? one : many}`;
+}
+
+/**
+ * Quando foi o último backup: "Hoje, 15:10", "Ontem, 09:05" ou "29/10 · há 9 dias".
+ * `at` em ISO; o horário é o do aparelho.
+ */
+export function formatBackupMoment(at: string, today: LocalDate): string {
+  const when = new Date(at);
+  const day = toLocalDate(when);
+  const time = format(when, 'HH:mm');
+  if (day === today) return `Hoje, ${time}`;
+  if (day === shiftDays(today, -1)) return `Ontem, ${time}`;
+  return `${formatShortDate(day)} · há ${daysBetween(day, today)} dias`;
+}
+
+/** Aviso de backup: "Seu último backup tem 9 dias" ou "Você ainda não fez nenhum backup". */
+export function formatBackupReminder(days: number | null): string {
+  return days === null ? 'Você ainda não fez nenhum backup' : `Seu último backup tem ${days} dias`;
 }

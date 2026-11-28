@@ -19,6 +19,15 @@ export function ProductBadge({ code }: { code: string }) {
   );
 }
 
+/** Letra num círculo neutro (itens de Ajustes: "B", "$"). */
+export function LetterBadge({ letter }: { letter: string }) {
+  return (
+    <span className={styles.badge} aria-hidden="true">
+      {letter}
+    </span>
+  );
+}
+
 /** Ícone num círculo neutro (despesa, semana…). */
 export function IconBadge({ icon }: { icon: IconName }) {
   return (

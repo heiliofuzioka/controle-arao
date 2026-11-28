@@ -8,11 +8,11 @@ import { Notice } from '../../components/Notice';
 import { ActionPair, PageTitle, TabLayout } from '../../components/TabLayout';
 import { db } from '../../db/db';
 import { loadActiveProducts } from '../../db/operations';
-import { loadHomeData } from '../../db/queries';
+import { loadBackupStatus, loadHomeData } from '../../db/queries';
 import { toLocalDate } from '../../domain/dates';
 import { homeSummary } from '../../domain/home';
 import type { Expense, LocalDate, PersonalExpense } from '../../domain/types';
-import { formatMonthName } from '../../lib/format';
+import { formatBackupReminder, formatMonthName } from '../../lib/format';
 import { formatCents } from '../../lib/money';
 import { isStandalone } from '../../lib/standalone';
 import { ExpenseSheet } from '../expense/ExpenseSheet';
@@ -38,8 +38,8 @@ export function HomePage() {
   const today = toLocalDate(new Date());
 
   const home = useLiveQuery(async () => {
-    const [data, products] = await Promise.all([loadHomeData(db), loadActiveProducts(db)]);
-    return homeSummary(data, products, today);
+    const [data, products, backup] = await Promise.all([loadHomeData(db), loadActiveProducts(db), loadBackupStatus(db, today)]);
+    return { ...homeSummary(data, products, today), backupReminder: backup.reminder };
   }, [today]);
 
   useEffect(() => {
@@ -105,6 +105,14 @@ export function HomePage() {
       {home?.unclosedWeek && (
         <Notice kind="attention" action={{ label: 'Fechar', onClick: () => setSheet({ kind: 'week', weekStart: home.unclosedWeek! }) }}>
           A semana passada ainda não foi fechada
+        </Notice>
+      )}
+      {home?.backupReminder && (
+        <Notice
+          kind="attention"
+          action={{ label: 'Fazer agora', onClick: () => navigate('/ajustes', { state: { backup: true } }) }}
+        >
+          {formatBackupReminder(home.backupReminder.days)}
         </Notice>
       )}
 

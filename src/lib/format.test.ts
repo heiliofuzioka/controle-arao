@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatCount,
+  formatBackupMoment,
   formatPlural,
   formatWeekCompact,
   formatDayShortMonth,
@@ -94,5 +95,17 @@ describe('plural escrito', () => {
     expect(formatPlural(1, 'sabor', 'sabores')).toBe('1 sabor');
     expect(formatPlural(3, 'sabor', 'sabores')).toBe('3 sabores');
     expect(formatPlural(0, 'sabor', 'sabores')).toBe('0 sabores');
+  });
+});
+
+describe('momento do backup', () => {
+  it('hoje, ontem e há N dias', () => {
+    const at = (d: string, h: number, m: number) => {
+      const [y, mo, da] = d.split('-').map(Number);
+      return new Date(y!, mo! - 1, da!, h, m).toISOString();
+    };
+    expect(formatBackupMoment(at('2026-11-28', 15, 10), '2026-11-28')).toBe('Hoje, 15:10');
+    expect(formatBackupMoment(at('2026-11-27', 9, 5), '2026-11-28')).toBe('Ontem, 09:05');
+    expect(formatBackupMoment(at('2026-10-29', 9, 5), '2026-11-07')).toBe('29/10 · há 9 dias');
   });
 });

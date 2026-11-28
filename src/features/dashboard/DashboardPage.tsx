@@ -5,7 +5,7 @@ import { Notice } from '../../components/Notice';
 import { TabLayout } from '../../components/TabLayout';
 import { db } from '../../db/db';
 import { loadActiveProducts } from '../../db/operations';
-import { loadHomeData } from '../../db/queries';
+import { loadBackupStatus, loadHomeData } from '../../db/queries';
 import {
   bucketTotals,
   columnBuckets,
@@ -20,7 +20,7 @@ import {
 } from '../../domain/dashboard';
 import { monthKey, monthRange, toLocalDate, weekRangeFromStart } from '../../domain/dates';
 import { findGoal, goalProgress, type GoalProgress } from '../../domain/goals';
-import { formatMonthName, formatPeriodLabel } from '../../lib/format';
+import { formatBackupReminder, formatMonthName, formatPeriodLabel } from '../../lib/format';
 import { formatCents, formatPercent, formatReais } from '../../lib/money';
 import { WeekCloseSheet } from '../week-close/WeekCloseSheet';
 import { ColumnChart } from './ColumnChart';
@@ -88,7 +88,9 @@ export function DashboardPage() {
     const goal = findGoal(data.goals, month);
     const monthCards = dashboardCards(data, monthRange(month));
     const cards = dashboardCards(data, range);
+    const backup = await loadBackupStatus(db, today);
     return {
+      backupReminder: backup.reminder,
       range,
       cards,
       goals: {
@@ -147,6 +149,14 @@ export function DashboardPage() {
             <p className={styles.leftoverValue}>{s ? formatCents(s.leftoverCents) : ' '}</p>
           </div>
 
+          {view?.backupReminder && (
+            <Notice
+              kind="attention"
+              action={{ label: 'Fazer agora', onClick: () => navigate('/ajustes', { state: { backup: true } }) }}
+            >
+              {formatBackupReminder(view.backupReminder.days)}
+            </Notice>
+          )}
           {view?.alerts.map((alert) =>
             alert.kind === 'settlement_overdue' ? (
               <Notice key="overdue" kind="attention" action={{ label: 'Ver', onClick: () => navigate('/acougue') }}>

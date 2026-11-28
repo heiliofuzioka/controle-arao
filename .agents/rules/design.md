@@ -76,6 +76,7 @@ description: "Visual do app: telas, componentes, cores, tipografia, navegação,
 11. **Categorias e produtos (Ajustes):** criar, editar e organizar categorias e produtos (nome, categoria, sigla, preço, ativo). Produto novo aparece no fechamento da semana, nos gráficos e nas receitas.
    - Decisões de 28/11 (passo 7): "Editar" ao lado do nome da categoria renomeia ou apaga (só categoria sem produto). Na folha do produto, "+ Nova" cria a categoria na hora. Produto que já tem lançamentos ou receitas não se apaga: desliga "Ainda vendo" (some do fechamento, o histórico fica). Sigla com 1 ou 2 letras, sem repetir.
 12. **Ajustes:** "Backup e seus dados" primeiro (Fazer backup, Restaurar, Exportar CSV); depois Produtos e receitas (Receitas e preços, Categorias e produtos, Metas); depois Despesas e estoque (Categorias de despesa, Contar estoque); no fim, mascote + "Controle Arão · versão 1.0".
-   - Desde o passo 7 (28/11) a aba Ajustes já aparece, só com Produtos e receitas e Contar estoque. "Backup e seus dados" e "Categorias de despesa" entram no passo 8.
+   - Ajustes completo desde o passo 8 (28/11). "Exportar planilha" exporta direto; "Fazer backup" abre a folha (telas 41 e 42), que também tem o botão da planilha.
+   - Categorias de despesa (28/11, sem desenho): lista com quantas despesas cada uma tem; folha com o nome e "Já entra no custo das receitas" (como Ingredientes e Embalagens: não desconta de novo no lucro). Só apaga categoria sem despesa.
 
 Todo lançamento pode ser editado ou apagado (exclusão marcada), e os totais se recalculam na hora (`useLiveQuery`).

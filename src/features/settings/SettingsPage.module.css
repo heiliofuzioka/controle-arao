@@ -20,3 +20,60 @@
   width: 56px;
   height: auto;
 }
+
+/* ── Folhas de backup ── */
+.statusCard {
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo-card);
+  padding: var(--espaco-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+}
+
+.statusCard.attention {
+  background: var(--cor-atencao-suave);
+}
+
+.statusLabel,
+.statusDetail {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto-secundario);
+}
+
+.attention .statusLabel,
+.attention .statusDetail {
+  color: var(--cor-texto-atencao);
+}
+
+.statusValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero);
+  line-height: var(--tipo-numero-linha);
+  letter-spacing: var(--aperto-numero);
+  color: var(--cor-texto);
+}
+
+.fileName {
+  overflow-wrap: anywhere;
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+}
+
+.text {
+  color: var(--cor-texto);
+}
+
+.fileInput {
+  display: none;
+}
+
+.hint {
+  color: var(--cor-texto-secundario);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  font-weight: var(--peso-rotulo);
+}

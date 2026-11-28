@@ -53,3 +53,17 @@ export function alerts(args: {
   if (unclosed) out.push({ kind: 'week_unclosed', weekStart: unclosed });
   return out;
 }
+
+/**
+ * Aviso de backup do Início, do Painel e de Ajustes: backup com mais de 7 dias, ou nunca feito
+ * depois que o Arão já lançou alguma coisa. `days`: há quantos dias foi o último (null = nunca).
+ */
+export function backupReminder(
+  lastBackup: LocalDate | undefined,
+  today: LocalDate,
+  hasData: boolean,
+): { days: number | null } | null {
+  if (!isBackupOverdue(lastBackup, today)) return null;
+  if (lastBackup === undefined) return hasData ? { days: null } : null;
+  return { days: daysBetween(lastBackup, today) };
+}

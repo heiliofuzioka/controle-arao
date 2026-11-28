@@ -66,3 +66,21 @@ describe('categorias', () => {
     expect((await db.categories.get(id))!.deletedAt).toBeDefined();
   });
 });
+
+describe('categorias de despesa', () => {
+  it('cria, renomeia e só apaga sem despesa', async () => {
+    const { saveExpenseCategory, deleteExpenseCategory, saveExpense } = await import('./operations');
+    const id = await saveExpenseCategory(db, { name: 'Aluguel', isProductCost: false });
+    await expect(saveExpenseCategory(db, { name: 'gás', isProductCost: false })).rejects.toThrow(
+      'Já existe uma categoria com esse nome',
+    );
+    await saveExpenseCategory(db, { id, name: 'Aluguel da cozinha', isProductCost: false });
+    expect((await db.expenseCategories.get(id))!.name).toBe('Aluguel da cozinha');
+    const expense = await saveExpense(db, { date: '2026-11-20', valueCents: 100, categoryId: id, description: '' });
+    await expect(deleteExpenseCategory(db, id)).rejects.toThrow('Essa categoria já tem despesas');
+    const { deleteExpense } = await import('./operations');
+    await deleteExpense(db, expense);
+    await deleteExpenseCategory(db, id);
+    expect((await db.expenseCategories.get(id))!.deletedAt).toBeDefined();
+  });
+});

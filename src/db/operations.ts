@@ -1,5 +1,6 @@
 // Gravações do app. Cada função roda numa única transação Dexie.
 // Nunca apaga de verdade: exclusão marca deletedAt.
+import { categoryNameError, nextCategoryOrder, productErrors, productInUse } from '../domain/catalog';
 import { alive, byCreation, newBase, softDelete, touch } from '../domain/records';
 import { computeSettlement, markPaid, markUnpaid, planSettlement } from '../domain/settlement';
 import { consignmentStock, deliveryChangeError, stockBeforeSettlement, type StockData } from '../domain/stock';
@@ -372,5 +373,112 @@ export async function saveMonthlyGoal(
       ...(revenueCents ? { revenueCents } : {}),
       ...(profitCents ? { profitCents } : {}),
     });
+  });
+}
+
+// ── Categorias e produtos ──
+
+/** Não deu para gravar no catálogo (nome repetido, categoria com produtos…). */
+export class CatalogBlockedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CatalogBlockedError';
+  }
+}
+
+export interface ProductSaveInput {
+  id?: ID;
+  name: string;
+  code: string;
+  categoryId: ID | null;
+  priceCents: Cents;
+  active: boolean;
+}
+
+/** Cria ou edita um produto. O preço novo vale para as próximas semanas (vendas antigas guardam o valor). */
+export async function saveProduct(db: ControleAraoDB, input: ProductSaveInput, now: string = nowIso()): Promise<ID> {
+  return db.transaction('rw', db.products, db.categories, async () => {
+    const products = await db.products.toArray();
+    const errors = productErrors(input, products, input.id);
+    const first = errors.name ?? errors.code ?? errors.categoryId;
+    if (first) throw new CatalogBlockedError(first);
+    const category = await db.categories.get(input.categoryId!);
+    if (!category || category.deletedAt) throw new CatalogBlockedError('Escolha a categoria');
+    const fields = {
+      name: input.name.trim(),
+      code: input.code.trim(),
+      categoryId: input.categoryId!,
+      priceCents: Math.max(0, input.priceCents),
+      active: input.active,
+    };
+    if (input.id) {
+      const current = await db.products.get(input.id);
+      if (!current || current.deletedAt) throw new CatalogBlockedError('Esse produto foi apagado.');
+      await db.products.put(touch(current, fields, now));
+      return input.id;
+    }
+    const id = newId();
+    await db.products.add({ ...newBase(id, now), ...fields });
+    return id;
+  });
+}
+
+/** Só o preço (calculadora de Receitas, depois da confirmação). */
+export async function setProductPrice(db: ControleAraoDB, id: ID, priceCents: Cents, now: string = nowIso()): Promise<void> {
+  await db.transaction('rw', db.products, async () => {
+    const current = await db.products.get(id);
+    if (!current || current.deletedAt) throw new CatalogBlockedError('Esse produto foi apagado.');
+    await db.products.put(touch(current, { priceCents: Math.max(0, Math.round(priceCents)) }, now));
+  });
+}
+
+/** Apaga um produto que nunca foi usado. Produto usado só pode deixar de ser vendido. */
+export async function deleteProduct(db: ControleAraoDB, id: ID, now: string = nowIso()): Promise<void> {
+  await db.transaction(
+    'rw',
+    [db.products, db.recipes, db.weekCloses, db.sales, db.deliveries, db.settlements, db.stockAdjustments],
+    async () => {
+      const current = await db.products.get(id);
+      if (!current || current.deletedAt) return;
+      const data = { ...(await loadStockData(db)), recipes: await db.recipes.toArray() };
+      if (productInUse(id, data)) {
+        throw new CatalogBlockedError('Esse produto já tem lançamentos ou receitas. Desligue "Ainda vendo" em vez de apagar.');
+      }
+      await db.products.put(softDelete(current, now));
+    },
+  );
+}
+
+/** Cria ou renomeia uma categoria. Categoria nova vai para o fim da lista. */
+export async function saveCategory(
+  db: ControleAraoDB,
+  input: { id?: ID; name: string },
+  now: string = nowIso(),
+): Promise<ID> {
+  return db.transaction('rw', db.categories, async () => {
+    const categories = await db.categories.toArray();
+    const error = categoryNameError(input.name, categories, input.id);
+    if (error) throw new CatalogBlockedError(error);
+    const name = input.name.trim();
+    if (input.id) {
+      const current = await db.categories.get(input.id);
+      if (!current || current.deletedAt) throw new CatalogBlockedError('Essa categoria foi apagada.');
+      await db.categories.put(touch(current, { name }, now));
+      return input.id;
+    }
+    const id = newId();
+    await db.categories.add({ ...newBase(id, now), name, order: nextCategoryOrder(categories) });
+    return id;
+  });
+}
+
+/** Apaga uma categoria vazia. */
+export async function deleteCategory(db: ControleAraoDB, id: ID, now: string = nowIso()): Promise<void> {
+  await db.transaction('rw', db.categories, db.products, async () => {
+    const current = await db.categories.get(id);
+    if (!current || current.deletedAt) return;
+    const products = alive(await db.products.where('categoryId').equals(id).toArray());
+    if (products.length > 0) throw new CatalogBlockedError('Mude os produtos dessa categoria antes de apagar.');
+    await db.categories.put(softDelete(current, now));
   });
 }

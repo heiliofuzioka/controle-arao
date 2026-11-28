@@ -79,6 +79,49 @@ export function TextField({
   value,
   onChange,
   placeholder,
+  error,
+  maxLength = 80,
+  autoFocus,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  error?: string;
+  maxLength?: number;
+  autoFocus?: boolean;
+}) {
+  const id = useId();
+  return (
+    <div className={styles.field}>
+      <label htmlFor={id} className={styles.label}>
+        {label}
+      </label>
+      <input
+        id={id}
+        className={`${styles.textInput} ${error ? styles.invalid : ''}`}
+        type="text"
+        autoComplete="off"
+        autoCapitalize="sentences"
+        enterKeyHint="done"
+        maxLength={maxLength}
+        placeholder={placeholder}
+        autoFocus={autoFocus}
+        aria-invalid={error ? true : undefined}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {error && <ErrorLine>{error}</ErrorLine>}
+    </div>
+  );
+}
+
+/** Texto longo (modo de preparo, observações). */
+export function TextArea({
+  label,
+  value,
+  onChange,
+  placeholder,
 }: {
   label: string;
   value: string;
@@ -91,18 +134,46 @@ export function TextField({
       <label htmlFor={id} className={styles.label}>
         {label}
       </label>
-      <input
+      <textarea
         id={id}
-        className={styles.textInput}
-        type="text"
-        autoComplete="off"
-        enterKeyHint="done"
-        maxLength={80}
+        className={styles.textArea}
+        rows={4}
+        maxLength={4000}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
     </div>
+  );
+}
+
+/** Interruptor liga/desliga com explicação (ex.: "Ainda vendo"). */
+export function Toggle({
+  label,
+  detail,
+  checked,
+  onChange,
+}: {
+  label: string;
+  detail?: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className={styles.toggle}>
+      <span className={styles.toggleTexts}>
+        <span className={styles.toggleLabel}>{label}</span>
+        {detail && <span className={styles.toggleDetail}>{detail}</span>}
+      </span>
+      <input
+        className={styles.toggleInput}
+        type="checkbox"
+        role="switch"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span className={styles.toggleTrack} aria-hidden="true" />
+    </label>
   );
 }
 

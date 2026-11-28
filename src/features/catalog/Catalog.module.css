@@ -1,0 +1,63 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-8);
+}
+
+.link {
+  min-height: var(--toque-minimo);
+  margin: calc(-1 * var(--espaco-12)) 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--cor-acao);
+  font-weight: var(--peso-forte);
+}
+
+.empty,
+.hint {
+  color: var(--cor-texto-secundario);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  font-weight: var(--peso-rotulo);
+}
+
+/* ── Folha do produto ── */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+}
+
+.label {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto);
+}
+
+/* Categorias em pílulas que quebram linha (tela 39). */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-8);
+}
+
+.chips > button {
+  max-width: 100%;
+  padding: 0 var(--espaco-16);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--espaco-12);
+  align-items: start;
+}

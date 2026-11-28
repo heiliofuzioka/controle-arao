@@ -93,3 +93,9 @@
   color: var(--cor-texto);
   white-space: nowrap;
 }
+
+.chevron {
+  flex: none;
+  display: flex;
+  color: var(--cor-texto);
+}

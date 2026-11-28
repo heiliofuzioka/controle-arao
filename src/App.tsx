@@ -1,6 +1,8 @@
 import { lazy, Suspense, type JSX } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ButcherPage } from './features/butcher/ButcherPage';
+import { CatalogPage } from './features/catalog/CatalogPage';
+import { SettingsPage } from './features/settings/SettingsPage';
 import { GoalsPage } from './features/goals/GoalsPage';
 import { HomePage } from './features/home/HomePage';
 import { WeekPage } from './features/week/WeekPage';
@@ -27,6 +29,8 @@ export function App() {
         <Route path="/mes" element={later(<MonthPage />)} />
         <Route path="/ano/:year" element={later(<YearPage />)} />
         <Route path="/ano" element={later(<YearPage />)} />
+        <Route path="/ajustes" element={<SettingsPage />} />
+        <Route path="/produtos" element={<CatalogPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>

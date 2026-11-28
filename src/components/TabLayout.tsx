@@ -3,15 +3,23 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Icon, type IconName } from './Icon';
 import styles from './TabLayout.module.css';
 
-/**
- * Abas que já existem. Ajustes entra quando a tela ficar pronta
- * (decisão de 22/11).
- */
+/** Abas do app. Ajustes entrou no passo 7 (com o que já existe; backup e CSV vêm no passo 8). */
 const TABS: { to: string; label: string; icon: IconName }[] = [
   { to: '/', label: 'Início', icon: 'home' },
   { to: '/acougue', label: 'Açougue', icon: 'store' },
   { to: '/semana', label: 'Semana', icon: 'calendar' },
   { to: '/painel', label: 'Painel', icon: 'chart' },
+  { to: '/ajustes', label: 'Ajustes', icon: 'sliders' },
+];
+
+/** Telas abertas por dentro de uma aba: a aba de origem fica acesa. */
+const TAB_OF: [string, string][] = [
+  ['/mes', '/painel'],
+  ['/ano', '/painel'],
+  ['/metas', '/ajustes'],
+  ['/produtos', '/ajustes'],
+  ['/receitas', '/ajustes'],
+  ['/ingredientes', '/ajustes'],
 ];
 
 /** Tela com barra de abas: conteúdo que rola, ações presas embaixo e a Barra de abas. */
@@ -32,9 +40,8 @@ export function TabLayout({
   hideTabsInLandscape?: boolean;
 }) {
   const { pathname } = useLocation();
-  // Fechamento do mês e Ano abrem pelo Painel: a aba Painel fica acesa.
   const isActiveTab = (to: string, matched: boolean) =>
-    matched || (to === '/painel' && (pathname.startsWith('/mes') || pathname.startsWith('/ano')));
+    matched || TAB_OF.some(([prefix, tab]) => tab === to && pathname.startsWith(prefix));
   return (
     <div
       className={`${styles.layout} ${tone === 'dark' ? styles.dark : ''} ${hideTabsInLandscape ? styles.noTabsLandscape : ''}`}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatCount,
+  formatPlural,
   formatWeekCompact,
   formatDayShortMonth,
   formatMonthShort,
@@ -85,5 +86,13 @@ describe('semana curta', () => {
   it('com e sem virada de mês', () => {
     expect(formatWeekCompact('2026-11-02')).toBe('2 a 8 nov');
     expect(formatWeekCompact('2026-10-26')).toBe('26 out a 1 nov');
+  });
+});
+
+describe('plural escrito', () => {
+  it('um e vários', () => {
+    expect(formatPlural(1, 'sabor', 'sabores')).toBe('1 sabor');
+    expect(formatPlural(3, 'sabor', 'sabores')).toBe('3 sabores');
+    expect(formatPlural(0, 'sabor', 'sabores')).toBe('0 sabores');
   });
 });

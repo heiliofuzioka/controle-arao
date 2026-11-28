@@ -40,12 +40,15 @@ export function EntryRow({
   detail,
   value,
   onClick,
+  chevron = false,
 }: {
   badge: ReactNode;
   title: string;
   detail?: string;
   value?: string;
   onClick?: () => void;
+  /** Seta à direita: a linha abre outra tela. */
+  chevron?: boolean;
 }) {
   const content = (
     <>
@@ -55,6 +58,11 @@ export function EntryRow({
         {detail && <span className={styles.detail}>{detail}</span>}
       </span>
       {value && <span className={styles.value}>{value}</span>}
+      {chevron && (
+        <span className={styles.chevron} aria-hidden="true">
+          <Icon name="chevronRight" size={20} />
+        </span>
+      )}
     </>
   );
   return (

@@ -96,3 +96,8 @@ export function formatWeekCompact(weekStart: LocalDate): string {
   const sameMonth = weekStart.slice(0, 7) === end.slice(0, 7);
   return `${fmt(weekStart, sameMonth ? 'd' : 'd MMM')} a ${fmt(end, 'd MMM')}`;
 }
+
+/** Quantidade com singular e plural escritos (palavras como "sabor/sabores"). */
+export function formatPlural(quantity: number, one: string, many: string): string {
+  return `${quantity} ${quantity === 1 ? one : many}`;
+}

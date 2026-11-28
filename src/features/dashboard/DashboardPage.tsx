@@ -87,9 +87,10 @@ export function DashboardPage() {
     const month = monthKey(today);
     const goal = findGoal(data.goals, month);
     const monthCards = dashboardCards(data, monthRange(month));
+    const cards = dashboardCards(data, range);
     return {
       range,
-      cards: dashboardCards(data, range),
+      cards,
       goals: {
         revenue: goalProgress(goal?.revenueCents, monthCards.summary.revenueCents),
         profit: goalProgress(goal?.profitCents, monthCards.profitCents),
@@ -104,7 +105,7 @@ export function DashboardPage() {
         weeks.map((w) => ({ key: w, kind: 'week' as const, range: weekRangeFromStart(w), isCurrent: false })),
       ),
       columns: bucketTotals(data, columnBuckets(period, today)),
-      alerts: dashboardAlerts(data, today),
+      alerts: dashboardAlerts(data, today, cards.missingProductIds),
     };
   }, [period, today]);
 
@@ -150,6 +151,12 @@ export function DashboardPage() {
             alert.kind === 'settlement_overdue' ? (
               <Notice key="overdue" kind="attention" action={{ label: 'Ver', onClick: () => navigate('/acougue') }}>
                 {alert.count === 1 ? 'Um acerto está a receber há mais de 14 dias' : `${alert.count} acertos estão a receber há mais de 14 dias`}
+              </Notice>
+            ) : alert.kind === 'recipe_missing' ? (
+              <Notice key="recipe" kind="attention" action={{ label: 'Ver', onClick: () => navigate('/receitas') }}>
+                {alert.count === 1
+                  ? 'Um produto vendido está sem receita: o lucro fica incompleto'
+                  : `${alert.count} produtos vendidos estão sem receita: o lucro fica incompleto`}
               </Notice>
             ) : (
               <Notice key="week" kind="attention" action={{ label: 'Fechar', onClick: () => setSheetWeek(alert.weekStart) }}>

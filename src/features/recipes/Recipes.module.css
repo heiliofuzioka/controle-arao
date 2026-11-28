@@ -1,0 +1,207 @@
+.section,
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+}
+
+.label {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-texto);
+}
+
+.hint,
+.subtitle {
+  color: var(--cor-texto-secundario);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  font-weight: var(--peso-rotulo);
+}
+
+.subtitle {
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+  font-weight: var(--peso-texto);
+}
+
+.textInput {
+  height: 64px;
+  min-width: 0;
+  border-radius: var(--raio-card);
+  border: 2px solid transparent;
+  outline: 0;
+  background: var(--cor-fundo-card);
+  padding: 0 var(--espaco-16);
+  font-weight: var(--peso-texto);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+  color: var(--cor-texto);
+}
+
+.textInput:focus {
+  border-color: var(--cor-acao);
+}
+
+.textInput.invalid,
+.textInput.invalid:focus {
+  border-color: var(--cor-erro);
+}
+
+/* Unidades (g, kg, ml, L, un) em pílulas. */
+.units {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-8);
+}
+
+.units > button,
+.itemInputs > button {
+  min-width: 56px;
+  padding: 0 var(--espaco-12);
+}
+
+/* ── Detalhe ── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-8);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: var(--altura-botao-compacto);
+  border-radius: var(--raio-pilula);
+  padding: 0 var(--espaco-16);
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+}
+
+.textCard {
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo-card);
+  padding: var(--espaco-16);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--cor-texto);
+}
+
+/* ── Formulário: ingredientes do lote ── */
+.itemList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+}
+
+.itemRow {
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo-card);
+  padding: var(--espaco-12) var(--espaco-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-8);
+}
+
+.itemName {
+  flex: 1 1 0;
+  min-width: 0;
+  font-weight: var(--peso-forte);
+  color: var(--cor-texto);
+  overflow-wrap: anywhere;
+}
+
+.itemCost {
+  font-weight: var(--peso-forte);
+  color: var(--cor-texto);
+  white-space: nowrap;
+}
+
+.removeButton {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  margin: calc(-1 * var(--espaco-8)) calc(-1 * var(--espaco-8)) calc(-1 * var(--espaco-8)) 0;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0;
+  background: none;
+  color: var(--cor-texto-secundario);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.itemInputs {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-8);
+}
+
+.quantityInput {
+  flex: 1 1 0;
+  width: 0;
+  height: 48px;
+  background: var(--cor-fundo-pagina);
+}
+
+/* ── Preço ── */
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--espaco-12);
+  align-items: start;
+}
+
+.priceCard {
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo-card);
+  padding: var(--espaco-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+}
+
+.priceCardLabel,
+.priceCardDetail {
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+}
+
+.priceChange {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--espaco-12);
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero);
+  line-height: var(--tipo-numero-linha);
+  letter-spacing: var(--aperto-numero);
+  color: var(--cor-texto);
+}
+
+.arrow {
+  font-family: var(--fonte-texto);
+  font-size: var(--tipo-secao);
+}
+
+/* Dentro do card branco do ingrediente, a unidade não escolhida fica no fundo creme. */
+.itemInputs > button[aria-pressed='false'] {
+  background: var(--cor-fundo-pagina);
+}

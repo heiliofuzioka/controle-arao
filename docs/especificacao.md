@@ -250,7 +250,7 @@ Ordem (em pé, rolando): cabeçalho → "Sobrou no período" → filtro → trê
   - Ondas: o período inteiro, com no mínimo as últimas 8 semanas; a faixa do período fica destacada. O card com os valores aparece ao tocar no gráfico. Produto novo vira uma onda a mais, com cor neutra.
   - Deitado: o gráfico mostrado depende do filtro (Semana, Mês e 2 meses → ondas; 6 meses e Ano → colunas).
   - Card "Metas de <mês>" é sempre do mês atual, qualquer que seja o filtro.
-  - Alertas no topo por enquanto: acerto a receber há mais de 14 dias e semana passada sem fechamento (este só depois de ter fechado alguma). Backup e produto sem receita entram junto com as telas deles (passos 8 e 7).
+  - Alertas no topo por enquanto: acerto a receber há mais de 14 dias, produto vendido no período sem receita ("o lucro fica incompleto", desde 28/11) e semana passada sem fechamento (este só depois de ter fechado alguma). O de backup entra no passo 8.
   - Lucro estimado mostra "Cadastre as receitas para calcular" enquanto não houver receita.
   - Os botões "Fechamento do mês" e "Ver o ano" entram na parte 6c, junto com as telas.
   - O Painel é carregado só quando a aba é aberta (os gráficos pesam); continua funcionando sem internet.
@@ -294,9 +294,17 @@ lucro por unidade   = preço − custo por unidade
 8. **Ano (pelo Painel):** janeiro a dezembro em colunas (faturamento com lucro dentro) e lista mês a mês com crescimento ou queda; tocar num mês abre o Fechamento dele; trocar o ano e comparar com outro ano.
    - Comparar (28/11): botões "Comparar com <ano>" para cada ano anterior com vendas; a comparação usa os meses em que o ano escolhido vendeu. "Mês a mês" lista só os meses com vendas, do mais novo para o mais antigo.
 9. **Receitas (Ajustes):** livro por sabor, agrupado por produto (nome, ingredientes e quantidades, outros custos do lote, rendimento, modo de preparo, observações, custo por unidade); tela de preço e margem; ingredientes com preço pago; cadastrar, editar e excluir.
+   - Decisões de 28/11 (passo 7; a confirmar com o Heilio):
+     - **Ingredientes** mostram o preço por kg, L ou unidade ("R$ 42,90/kg"), não por grama (por grama quase tudo daria "R$ 0,00/g"). Ingrediente que está numa receita não se apaga.
+     - **Nova receita / Editar receita** (sem tela no desenho): sabor, produto, rendimento, ingredientes do lote (quantidade em g/kg, ml/L ou un), mão de obra por lote, embalagem por unidade, outros custos do lote, margem que quer (começa em 60%), modo de preparo e observações. Na edição, "Ainda faço este sabor" (desligado: fica no livro, mas não entra no custo do produto) e "Apagar receita". O custo de cada unidade aparece ao vivo.
+     - Título do sabor: produto + sabor ("Brownie tradicional", "Gelinho Nutella", "Brownie Leite Ninho").
+     - **Preço:** começa no preço atual do produto (sem preço, no preço que dá a margem da meta). "Outros sabores" mostram o preço de cada um com a mesma margem. "Aplicar" abre a confirmação (tela 34).
+     - **Abaixo da meta** (tela 33): abre sozinha quando o preço de um ingrediente sobe e algum sabor fica abaixo da margem; a lista de Receitas também mostra o aviso "N sabores estão abaixo da margem · Ver". "Ver e aplicar novos preços" abre o Preço do primeiro sabor da lista; tocar num sabor abre o Preço dele.
 10. **Metas (Ajustes):** meta de faturamento e de lucro estimado por mês, com o progresso até agora.
 11. **Categorias e produtos (Ajustes):** criar, editar e organizar categorias e produtos (nome, categoria, sigla, preço, ativo). Produto novo aparece no fechamento da semana, nos gráficos e nas receitas.
+   - Decisões de 28/11 (passo 7): "Editar" ao lado do nome da categoria renomeia ou apaga (só categoria sem produto). Na folha do produto, "+ Nova" cria a categoria na hora. Produto que já tem lançamentos ou receitas não se apaga: desliga "Ainda vendo" (some do fechamento, o histórico fica). Sigla com 1 ou 2 letras, sem repetir.
 12. **Ajustes:** "Backup e seus dados" primeiro (Fazer backup, Restaurar, Exportar CSV); depois Produtos e receitas (Receitas e preços, Categorias e produtos, Metas); depois Despesas e estoque (Categorias de despesa, Contar estoque); no fim, mascote + "Controle Arão · versão 1.0".
+   - Desde o passo 7 (28/11) a aba Ajustes já aparece, só com Produtos e receitas e Contar estoque. "Backup e seus dados" e "Categorias de despesa" entram no passo 8.
 
 Todo lançamento pode ser editado ou apagado (exclusão marcada), e os totais se recalculam na hora (`useLiveQuery`).
 

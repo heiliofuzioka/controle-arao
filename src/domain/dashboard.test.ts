@@ -166,4 +166,10 @@ describe('gráfico de ondas e alertas', () => {
       { kind: 'week_unclosed', weekStart: '2026-10-26' },
     ]);
   });
+
+  it('alerta de produto vendido sem receita', () => {
+    expect(dashboardAlerts({ settlements: [], weekCloses: [], sales: [] }, today, ['a', 'b'])).toEqual([
+      { kind: 'recipe_missing', count: 2 },
+    ]);
+  });
 });

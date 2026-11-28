@@ -237,19 +237,22 @@ export function hasClosedWeek(weekCloses: WeekClose[], sales: Sale[]): boolean {
 
 export type DashboardAlert =
   | { kind: 'settlement_overdue'; count: number }
+  | { kind: 'recipe_missing'; count: number }
   | { kind: 'week_unclosed'; weekStart: LocalDate };
 
 /**
- * Alertas do topo do Painel. Backup (passo 8) e produto sem receita (passo 7) entram
- * quando as telas deles existirem.
+ * Alertas do topo do Painel. `missingProductIds`: produtos vendidos no período sem receita
+ * (o lucro estimado fica incompleto). O de backup entra no passo 8.
  */
 export function dashboardAlerts(
   data: { settlements: Settlement[]; weekCloses: WeekClose[]; sales: Sale[] },
   today: LocalDate,
+  missingProductIds: readonly ID[] = [],
 ): DashboardAlert[] {
   const out: DashboardAlert[] = [];
   const overdue = overdueSettlements(data.settlements, today);
   if (overdue.length > 0) out.push({ kind: 'settlement_overdue', count: overdue.length });
+  if (missingProductIds.length > 0) out.push({ kind: 'recipe_missing', count: missingProductIds.length });
   if (hasClosedWeek(data.weekCloses, data.sales)) {
     const unclosed = previousWeekUnclosed(data.weekCloses, today);
     if (unclosed) out.push({ kind: 'week_unclosed', weekStart: unclosed });

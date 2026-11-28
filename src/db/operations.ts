@@ -1,6 +1,14 @@
 // Gravações do app. Cada função roda numa única transação Dexie.
 // Nunca apaga de verdade: exclusão marca deletedAt.
 import { categoryNameError, nextCategoryOrder, productErrors, productInUse } from '../domain/catalog';
+import {
+  ingredientErrors,
+  ingredientFields,
+  pricePerBaseUnit,
+  recipeErrors,
+  recipesUsingIngredient,
+  type IngredientInput,
+} from '../domain/recipes';
 import { alive, byCreation, newBase, softDelete, touch } from '../domain/records';
 import { computeSettlement, markPaid, markUnpaid, planSettlement } from '../domain/settlement';
 import { consignmentStock, deliveryChangeError, stockBeforeSettlement, type StockData } from '../domain/stock';
@@ -34,13 +42,16 @@ export async function loadStockData(db: ControleAraoDB): Promise<StockData> {
   return { weekCloses, sales, deliveries, settlements, adjustments };
 }
 
-/** Produtos ativos, na ordem das categorias (e da criação dentro de cada categoria). */
-export async function loadActiveProducts(db: ControleAraoDB): Promise<Product[]> {
+/** Produtos não apagados (ativos e parados), na ordem das categorias e da criação dentro de cada uma. */
+export async function loadProductsInOrder(db: ControleAraoDB): Promise<Product[]> {
   const [products, categories] = await Promise.all([db.products.toArray(), db.categories.toArray()]);
   const order = new Map(categories.map((c) => [c.id, c.order]));
-  return byCreation(alive(products).filter((p) => p.active)).sort(
-    (a, b) => (order.get(a.categoryId) ?? 0) - (order.get(b.categoryId) ?? 0),
-  );
+  return byCreation(alive(products)).sort((a, b) => (order.get(a.categoryId) ?? 0) - (order.get(b.categoryId) ?? 0));
+}
+
+/** Produtos ativos, na ordem das categorias (e da criação dentro de cada categoria). */
+export async function loadActiveProducts(db: ControleAraoDB): Promise<Product[]> {
+  return (await loadProductsInOrder(db)).filter((p) => p.active);
 }
 
 export interface WeekCloseCardInput {
@@ -480,5 +491,150 @@ export async function deleteCategory(db: ControleAraoDB, id: ID, now: string = n
     const products = alive(await db.products.where('categoryId').equals(id).toArray());
     if (products.length > 0) throw new CatalogBlockedError('Mude os produtos dessa categoria antes de apagar.');
     await db.categories.put(softDelete(current, now));
+  });
+}
+
+// ── Ingredientes e receitas ──
+
+/** Não deu para gravar no livro de receitas (dados faltando, ingrediente em uso…). */
+export class RecipeBlockedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RecipeBlockedError';
+  }
+}
+
+/** Cria ou edita um ingrediente. `rose`: o preço por g/ml/un subiu (as receitas se recalculam). */
+export async function saveIngredient(
+  db: ControleAraoDB,
+  input: IngredientInput & { id?: ID },
+  now: string = nowIso(),
+): Promise<{ id: ID; rose: boolean }> {
+  return db.transaction('rw', db.ingredients, async () => {
+    const errors = ingredientErrors(input, await db.ingredients.toArray(), input.id);
+    const first = errors.name ?? errors.pricePaidCents ?? errors.packageQty;
+    if (first) throw new RecipeBlockedError(first);
+    const fields = ingredientFields(input);
+    if (input.id) {
+      const current = await db.ingredients.get(input.id);
+      if (!current || current.deletedAt) throw new RecipeBlockedError('Esse ingrediente foi apagado.');
+      const next = touch(current, fields, now);
+      await db.ingredients.put(next);
+      return { id: input.id, rose: pricePerBaseUnit(next) > pricePerBaseUnit(current) + 1e-9 };
+    }
+    const id = newId();
+    await db.ingredients.add({ ...newBase(id, now), ...fields });
+    return { id, rose: false };
+  });
+}
+
+/** Apaga um ingrediente que não está em nenhuma receita. */
+export async function deleteIngredient(db: ControleAraoDB, id: ID, now: string = nowIso()): Promise<void> {
+  await db.transaction('rw', db.ingredients, db.recipes, db.recipeItems, async () => {
+    const current = await db.ingredients.get(id);
+    if (!current || current.deletedAt) return;
+    const using = recipesUsingIngredient(id, await db.recipes.toArray(), await db.recipeItems.toArray());
+    if (using.length > 0) {
+      throw new RecipeBlockedError(
+        using.length === 1 ? 'Esse ingrediente está numa receita. Tire da receita antes.' : `Esse ingrediente está em ${using.length} receitas. Tire das receitas antes.`,
+      );
+    }
+    await db.ingredients.put(softDelete(current, now));
+  });
+}
+
+export interface RecipeSaveInput {
+  id?: ID;
+  productId: ID;
+  name: string;
+  yield: number;
+  packagingPerUnitCents: Cents;
+  laborPerBatchCents: Cents;
+  otherCostsPerBatchCents: Cents;
+  targetMargin: number;
+  preparation: string;
+  notes: string;
+  active: boolean;
+  /** Quantidades na unidade base do ingrediente. */
+  items: { id?: ID; ingredientId: ID; quantity: number }[];
+}
+
+/** Cria ou edita um sabor com os ingredientes do lote (itens tirados ficam marcados como apagados). */
+export async function saveRecipe(db: ControleAraoDB, input: RecipeSaveInput, now: string = nowIso()): Promise<ID> {
+  return db.transaction('rw', [db.recipes, db.recipeItems, db.ingredients, db.products], async () => {
+    const errors = recipeErrors(input, await db.recipes.toArray(), input.id);
+    const first = errors.name ?? errors.productId ?? errors.yield ?? errors.items ?? errors.targetMargin;
+    if (first) throw new RecipeBlockedError(first);
+    const product = await db.products.get(input.productId);
+    if (!product || product.deletedAt) throw new RecipeBlockedError('Escolha o produto');
+    for (const item of input.items) {
+      const ingredient = await db.ingredients.get(item.ingredientId);
+      if (!ingredient || ingredient.deletedAt) throw new RecipeBlockedError('Um dos ingredientes foi apagado.');
+    }
+    const text = (t: string) => (t.trim() ? t.trim() : undefined);
+    const fields = {
+      productId: input.productId,
+      name: input.name.trim(),
+      yield: input.yield,
+      packagingPerUnitCents: Math.max(0, input.packagingPerUnitCents),
+      laborPerBatchCents: Math.max(0, input.laborPerBatchCents),
+      otherCostsPerBatchCents: Math.max(0, input.otherCostsPerBatchCents),
+      targetMargin: input.targetMargin,
+      active: input.active,
+    };
+
+    let id: ID;
+    if (input.id) {
+      const current = await db.recipes.get(input.id);
+      if (!current || current.deletedAt) throw new RecipeBlockedError('Essa receita foi apagada.');
+      const { preparation: _p, notes: _n, ...rest } = touch(current, fields, now);
+      await db.recipes.put({
+        ...rest,
+        ...(text(input.preparation) ? { preparation: text(input.preparation) } : {}),
+        ...(text(input.notes) ? { notes: text(input.notes) } : {}),
+      });
+      id = input.id;
+    } else {
+      id = newId();
+      await db.recipes.add({
+        ...newBase(id, now),
+        ...fields,
+        ...(text(input.preparation) ? { preparation: text(input.preparation) } : {}),
+        ...(text(input.notes) ? { notes: text(input.notes) } : {}),
+      });
+    }
+
+    // Itens: atualiza os que ficaram, apaga os que saíram, cria os novos (1 ms de diferença mantém a ordem).
+    const existing = alive(await db.recipeItems.where('recipeId').equals(id).toArray());
+    const kept = new Set(input.items.flatMap((i) => (i.id ? [i.id] : [])));
+    for (const item of existing) {
+      if (!kept.has(item.id)) await db.recipeItems.put(softDelete(item, now));
+    }
+    const start = Date.parse(now);
+    let n = 0;
+    for (const item of input.items) {
+      const current = item.id ? existing.find((e) => e.id === item.id) : undefined;
+      if (current) {
+        if (current.quantity !== item.quantity || current.ingredientId !== item.ingredientId) {
+          await db.recipeItems.put(touch(current, { quantity: item.quantity, ingredientId: item.ingredientId }, now));
+        }
+      } else {
+        const created = new Date(start + n++).toISOString();
+        await db.recipeItems.add({ ...newBase(newId(), created), recipeId: id, ingredientId: item.ingredientId, quantity: item.quantity });
+      }
+    }
+    return id;
+  });
+}
+
+/** Apaga o sabor e os itens dele. */
+export async function deleteRecipe(db: ControleAraoDB, id: ID, now: string = nowIso()): Promise<void> {
+  await db.transaction('rw', db.recipes, db.recipeItems, async () => {
+    const current = await db.recipes.get(id);
+    if (!current || current.deletedAt) return;
+    await db.recipes.put(softDelete(current, now));
+    for (const item of alive(await db.recipeItems.where('recipeId').equals(id).toArray())) {
+      await db.recipeItems.put(softDelete(item, now));
+    }
   });
 }

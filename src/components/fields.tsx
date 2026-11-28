@@ -73,6 +73,65 @@ export function MoneyField({ label, valueCents, onChange, error, hint, autoFocus
   );
 }
 
+interface PercentFieldProps {
+  label: string;
+  /** 0–1. null = vazio ou inválido. */
+  value: number | null;
+  onChange: (value: number | null) => void;
+  /** Lê o texto digitado ("62,5" → 0,625). */
+  parse: (text: string) => number | null;
+  /** Escreve o número no campo (0,625 → "62,5"). */
+  format: (value: number) => string;
+  error?: string;
+  hint?: ReactNode;
+}
+
+/** Campo de porcentagem: "%" + número grande (margem). */
+export function PercentField({ label, value, onChange, parse, format, error, hint }: PercentFieldProps) {
+  const id = useId();
+  const [text, setText] = useState(value === null ? '' : format(value));
+  const focused = useRef(false);
+
+  useEffect(() => {
+    if (!focused.current) setText(value === null ? '' : format(value));
+  }, [value, format]);
+
+  return (
+    <div className={styles.field}>
+      <label htmlFor={id} className={styles.label}>
+        {label}
+      </label>
+      <div className={`${styles.moneyBox} ${error ? styles.invalid : ''}`}>
+        <span className={styles.currency}>%</span>
+        <input
+          id={id}
+          className={styles.moneyInput}
+          inputMode="decimal"
+          autoComplete="off"
+          placeholder="0"
+          aria-invalid={error ? true : undefined}
+          value={text}
+          onFocus={(e) => {
+            focused.current = true;
+            e.currentTarget.select();
+          }}
+          onChange={(e) => {
+            setText(e.target.value);
+            onChange(parse(e.target.value));
+          }}
+          onBlur={() => {
+            focused.current = false;
+            const parsed = parse(text);
+            if (parsed !== null) setText(format(parsed));
+          }}
+        />
+      </div>
+      {error && <ErrorLine>{error}</ErrorLine>}
+      {hint}
+    </div>
+  );
+}
+
 /** Campo de texto curto (ex.: "O que foi?"). */
 export function TextField({
   label,

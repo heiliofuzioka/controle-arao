@@ -1,0 +1,558 @@
+/* Painel: fundo escuro (#0E1C3D), cards #16295A, textos brancos. A barra de abas continua branca. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-12);
+  color: var(--cor-painel-texto);
+}
+
+.side,
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-12);
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-8);
+  padding-top: var(--espaco-8);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-8);
+}
+
+.mascot {
+  width: 34px;
+  height: auto;
+  flex: none;
+}
+
+.title {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-titulo);
+  line-height: var(--tipo-titulo-linha);
+  letter-spacing: var(--aperto-titulo);
+  color: var(--cor-painel-texto);
+}
+
+.periodLabel {
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  color: var(--cor-painel-texto-secundario);
+  white-space: nowrap;
+}
+
+.leftoverLabel {
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-painel-texto-secundario);
+}
+
+.leftoverValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero-grande);
+  line-height: var(--tipo-numero-grande-linha);
+  letter-spacing: var(--aperto-titulo);
+  color: var(--cor-painel-texto);
+}
+
+/* ── Filtro de período (fica preso no topo ao rolar) ── */
+.stickyFilter {
+  position: sticky;
+  top: calc(-1 * var(--espaco-4));
+  z-index: 5;
+  padding: var(--espaco-4) 0;
+  margin: calc(-1 * var(--espaco-4)) 0;
+  background: var(--cor-painel-fundo);
+}
+
+.filter {
+  display: flex;
+  gap: var(--espaco-4);
+  padding: var(--espaco-4);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-painel-card);
+}
+
+.filterButton {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 44px;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0 2px;
+  background: transparent;
+  color: var(--cor-painel-texto-secundario);
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filterButton[aria-pressed='true'] {
+  background: var(--cor-painel-texto);
+  color: var(--cor-painel-fundo);
+}
+
+/* ── Cards com anel ── */
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-8);
+  padding: 14px var(--espaco-16);
+  border-radius: var(--raio-card);
+  background: var(--cor-painel-card);
+}
+
+.cardTexts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+  min-width: 0;
+}
+
+.cardLabel {
+  flex: 1 1 0;
+  font-weight: var(--peso-rotulo);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  color: var(--cor-painel-texto-secundario);
+}
+
+.cardValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-numero);
+  line-height: var(--tipo-numero-linha);
+  letter-spacing: var(--aperto-numero);
+  color: var(--cor-painel-texto);
+  overflow-wrap: anywhere;
+}
+
+.cardDetail {
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  color: var(--cor-painel-texto-secundario);
+}
+
+.ring {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring svg {
+  position: absolute;
+  inset: 0;
+}
+
+.ringText {
+  position: relative;
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  font-weight: var(--peso-forte);
+  color: var(--cor-painel-texto);
+}
+
+.ring_revenue {
+  stroke: var(--cor-grafico-lucro);
+}
+
+.ring_expense {
+  stroke: var(--cor-grafico-despesa);
+}
+
+.ring_profit {
+  stroke: var(--cor-grafico-gelinho);
+}
+
+/* ── Metas ── */
+.goalsCard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: var(--espaco-16);
+  border-radius: var(--raio-card);
+  background: var(--cor-painel-card);
+}
+
+.goal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-6);
+}
+
+.goalHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espaco-8);
+}
+
+.goalPercent {
+  font-weight: var(--peso-forte);
+}
+
+.goalValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+}
+
+.goalTrack {
+  height: 10px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-painel-trilho);
+  overflow: hidden;
+}
+
+.goalFill {
+  height: 10px;
+  border-radius: var(--raio-pilula);
+}
+
+.goal_revenue {
+  background: var(--cor-grafico-faturamento);
+}
+
+.goal_profit {
+  background: var(--cor-grafico-lucro);
+}
+
+.link {
+  align-self: flex-start;
+  min-height: var(--toque-minimo);
+  margin: calc(-1 * var(--espaco-8)) 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--cor-grafico-faturamento);
+  font-weight: var(--peso-forte);
+  text-decoration: underline;
+}
+
+/* ── Cards dos gráficos ── */
+.chartCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-12);
+  padding: var(--espaco-16);
+  border-radius: 24px;
+  background: var(--cor-painel-card);
+}
+
+.chartHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+}
+
+.chartTitle {
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-texto);
+  line-height: var(--tipo-texto-linha);
+  color: var(--cor-painel-texto);
+}
+
+.chartSubtitle {
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  color: var(--cor-painel-texto-secundario);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  color: var(--cor-painel-texto-secundario);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-6);
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--raio-pilula);
+  flex: none;
+}
+
+/* Ondas */
+.waveWrap {
+  position: relative;
+  height: 170px;
+  touch-action: pan-y;
+}
+
+.waveWrap svg {
+  display: block;
+  overflow: visible;
+}
+
+.tooltip {
+  position: absolute;
+  top: 4px;
+  width: 150px;
+  padding: 10px 12px;
+  border-radius: var(--raio-campo);
+  background: var(--cor-painel-texto);
+  color: var(--cor-painel-fundo);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  pointer-events: none;
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espaco-8);
+}
+
+.tooltipStrong {
+  font-weight: var(--peso-forte);
+}
+
+.tooltipValue {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+}
+
+.xLabels {
+  position: relative;
+  height: var(--tipo-detalhe-linha);
+}
+
+.xLabel {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  color: var(--cor-painel-texto-secundario);
+  white-space: nowrap;
+}
+
+.xLabel:first-child {
+  transform: none;
+}
+
+.xLabel:last-child {
+  transform: translateX(-100%);
+}
+
+/* Colunas */
+.columns {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--espaco-8);
+}
+
+.yAxis {
+  position: relative;
+  width: 64px;
+  flex: none;
+}
+
+.yLabel {
+  position: absolute;
+  right: 0;
+  transform: translateY(50%);
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  color: var(--cor-painel-texto-secundario);
+  white-space: nowrap;
+}
+
+.bars {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  gap: var(--espaco-8);
+}
+
+.barSlot {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-6);
+}
+
+.barArea {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.bar {
+  border-radius: 10px 10px 4px 4px;
+  background: var(--cor-grafico-faturamento);
+  opacity: 0.85;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: hidden;
+}
+
+.barCurrent {
+  opacity: 1;
+}
+
+.barProfit {
+  width: 40%;
+  border-radius: 6px 6px 0 0;
+  background: var(--cor-grafico-lucro);
+}
+
+.barValue {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-painel-texto);
+  color: var(--cor-painel-fundo);
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  font-weight: var(--peso-forte);
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.barLabel {
+  font-size: var(--tipo-detalhe);
+  line-height: var(--tipo-detalhe-linha);
+  color: var(--cor-painel-texto-secundario);
+  white-space: nowrap;
+}
+
+.barLabelCurrent {
+  color: var(--cor-painel-texto);
+}
+
+/* Muitas colunas (ano) ou tela estreita: rótulos e vãos menores. */
+@media (max-width: 400px) {
+  .bars {
+    gap: var(--espaco-4);
+  }
+
+  .yAxis {
+    width: 52px;
+  }
+}
+
+/* ── Painel vazio ── */
+.emptyCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-12);
+  padding: var(--espaco-24) var(--espaco-16);
+  border-radius: 24px;
+  background: var(--cor-painel-card);
+  text-align: center;
+}
+
+.emptyMascot {
+  width: 120px;
+  height: auto;
+}
+
+.emptyTitle {
+  align-self: stretch;
+  text-align: left;
+  font-weight: var(--peso-forte);
+  font-size: var(--tipo-secao);
+  line-height: var(--tipo-secao-linha);
+}
+
+.emptyText {
+  align-self: stretch;
+  text-align: left;
+  font-weight: var(--peso-forte);
+  color: var(--cor-painel-texto-secundario);
+}
+
+/* ── Em pé × deitado ── */
+.landscapeOnly {
+  display: none;
+}
+
+/* Celular deitado: coluna esquerda com "Sobrou" e os três cards; à direita o filtro e um gráfico. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .page {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--espaco-16);
+    align-items: start;
+  }
+
+  .portraitOnly {
+    display: none;
+  }
+
+  .landscapeOnly {
+    display: block;
+  }
+
+  .title {
+    font-size: var(--tipo-secao);
+    line-height: var(--tipo-secao-linha);
+    letter-spacing: 0;
+  }
+
+  .mascot {
+    display: none;
+  }
+
+  .leftoverValue {
+    font-size: var(--tipo-titulo);
+    line-height: var(--tipo-titulo-linha);
+  }
+
+  .card {
+    padding: var(--espaco-12) var(--espaco-16);
+  }
+
+  .cardDetail {
+    display: none;
+  }
+
+  .cardValue {
+    font-size: 24px;
+    line-height: 28px;
+  }
+}

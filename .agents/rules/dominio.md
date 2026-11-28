@@ -130,6 +130,15 @@ Ordem (em pé, rolando): cabeçalho → "Sobrou no período" → filtro → trê
 - **Gráfico de colunas "Faturamento e lucro":** coluna azul = faturamento; dentro, coluna verde mais estreita = lucro estimado; eixo de valores à esquerda a partir de R$ 0; data embaixo. Semana → últimas 8 semanas; Mês e 2 meses → uma coluna por semana; 6 meses e Ano → uma por mês. A coluna atual mostra o valor numa etiqueta branca.
 - **Celular deitado** (`@media (orientation: landscape)`): coluna esquerda com "Sobrou" e os três cards; à direita, o filtro e um gráfico por vez. Sem barra de abas. `ResizeObserver` redesenha o gráfico; respeitar `env(safe-area-inset-left/right)`.
 - Filtros cabem em 320px: botões com `flex: 1 1 0; min-width: 0`.
+- **Como ficou no app (28/11; escolhas do código, a confirmar):**
+  - Ordem igual em todos os filtros: ondas e depois colunas (a tela 46, de 6 meses, mostra as colunas primeiro).
+  - Ondas: o período inteiro, com no mínimo as últimas 8 semanas; a faixa do período fica destacada. O card com os valores aparece ao tocar no gráfico. Produto novo vira uma onda a mais, com cor neutra.
+  - Deitado: o gráfico mostrado depende do filtro (Semana, Mês e 2 meses → ondas; 6 meses e Ano → colunas).
+  - Card "Metas de <mês>" é sempre do mês atual, qualquer que seja o filtro.
+  - Alertas no topo por enquanto: acerto a receber há mais de 14 dias e semana passada sem fechamento (este só depois de ter fechado alguma). Backup e produto sem receita entram junto com as telas deles (passos 8 e 7).
+  - Lucro estimado mostra "Cadastre as receitas para calcular" enquanto não houver receita.
+  - Os botões "Fechamento do mês" e "Ver o ano" entram na parte 6c, junto com as telas.
+  - O Painel é carregado só quando a aba é aberta (os gráficos pesam); continua funcionando sem internet.
 
 ### Precificação (dentro de Receitas)
 

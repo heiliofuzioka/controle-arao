@@ -156,3 +156,19 @@
 .active .tabLabel {
   font-weight: var(--peso-forte);
 }
+
+/* Painel: fundo escuro na área que rola. */
+.dark {
+  background: var(--cor-painel-fundo);
+}
+
+/* Painel deitado: sem barra de abas; respeita as laterais do iPhone. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .noTabsLandscape .tabs {
+    display: none;
+  }
+
+  .noTabsLandscape .content {
+    padding-bottom: max(var(--area-segura-base), var(--espaco-16));
+  }
+}

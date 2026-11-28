@@ -4,13 +4,14 @@ import { Icon, type IconName } from './Icon';
 import styles from './TabLayout.module.css';
 
 /**
- * Abas que já existem. Painel e Ajustes entram quando cada tela ficar pronta
+ * Abas que já existem. Ajustes entra quando a tela ficar pronta
  * (decisão de 22/11).
  */
 const TABS: { to: string; label: string; icon: IconName }[] = [
   { to: '/', label: 'Início', icon: 'home' },
   { to: '/acougue', label: 'Açougue', icon: 'store' },
   { to: '/semana', label: 'Semana', icon: 'calendar' },
+  { to: '/painel', label: 'Painel', icon: 'chart' },
 ];
 
 /** Tela com barra de abas: conteúdo que rola, ações presas embaixo e a Barra de abas. */
@@ -18,14 +19,22 @@ export function TabLayout({
   children,
   actions,
   actionsLayout = 'row',
+  tone = 'light',
+  hideTabsInLandscape = false,
 }: {
   children: ReactNode;
   actions?: ReactNode;
   /** 'row': botões lado a lado; 'stack': um embaixo do outro (atalhos do Início). */
   actionsLayout?: 'row' | 'stack';
+  /** 'dark': fundo do Painel. A barra de abas continua branca. */
+  tone?: 'light' | 'dark';
+  /** Painel deitado: sem barra de abas. */
+  hideTabsInLandscape?: boolean;
 }) {
   return (
-    <div className={styles.layout}>
+    <div
+      className={`${styles.layout} ${tone === 'dark' ? styles.dark : ''} ${hideTabsInLandscape ? styles.noTabsLandscape : ''}`}
+    >
       <main className={styles.content}>{children}</main>
       {actions && <div className={actionsLayout === 'row' ? styles.actions : styles.actionsStack}>{actions}</div>}
       <nav className={styles.tabs} aria-label="Abas">

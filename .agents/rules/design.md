@@ -20,7 +20,7 @@ description: "Visual do app: telas, componentes, cores, tipografia, navegação,
 - **Forma:** cards sem sombra e sem borda, separados do fundo pelo tom. Botões em pílula com 56px de altura (botões de categoria e passos: 44px). Sombra só na barra de abas e nas folhas.
 - **Avisos:** sucesso e erro com fundo sólido (verde `#1E6B4E`, vermelho `#B42318`) e texto branco. Informação (azul-claro) e atenção (âmbar-claro) ficam suaves.
 - **Navegação:**
-  - barra de abas embaixo com Início, Açougue, Semana, Painel e Ajustes (decidido em 22/11: cada aba entra quando a tela dela fica pronta; até o passo 6 só Início e Açougue);
+  - barra de abas embaixo com Início, Açougue, Semana, Painel e Ajustes (decidido em 22/11: cada aba entra quando a tela dela fica pronta; em 28/11 já existem Início, Açougue, Semana e Painel; Ajustes entra no passo 8);
   - Início: botões **Fechar a semana** (destaque), Açougue, Despesa e Gasto pessoal;
   - Painel: botões "Fechamento do mês" e "Ver o ano";
   - Ajustes → Receitas e preços, Categorias e produtos, Metas, Categorias de despesa, Contar estoque, Backup;

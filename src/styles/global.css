@@ -54,3 +54,9 @@ button {
   padding-top: var(--area-segura-topo);
   overflow: hidden;
 }
+
+/* Painel aberto: fundo escuro também atrás da barra de status. */
+html[data-tone='dark'],
+html[data-tone='dark'] body {
+  background: var(--cor-painel-fundo);
+}

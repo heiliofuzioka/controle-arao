@@ -1,0 +1,199 @@
+/*
+ * Abertura animada — tempos e curvas de docs/referencias/abertura-animada.html.
+ * Só transform e opacity. A tela toda (sem descontar as safe areas), para bater
+ * com a imagem parada do iPhone em pé e deitado.
+ */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  background: #fdebd7;
+  transition: opacity 200ms ease-out;
+}
+
+.leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.wave {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.waveBack {
+  background: #3e64b4;
+  animation: wave-up 700ms cubic-bezier(0.4, 0, 0.2, 1) 0ms both;
+}
+
+.waveFront {
+  background: #1a4594;
+  animation: wave-up 700ms cubic-bezier(0.4, 0, 0.2, 1) 80ms both;
+}
+
+.crest {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 0;
+  animation: drift 1400ms linear infinite;
+}
+
+.crest svg {
+  position: absolute;
+  left: 0;
+  top: -59px;
+  width: 200%;
+  height: 60px;
+  display: block;
+}
+
+/* Logo de 240 × 273 no centro da tela (em pé e deitado). */
+.logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -120px;
+  margin-top: -136.5px;
+  overflow: visible;
+}
+
+.logo g,
+.logo path {
+  transform-box: view-box;
+}
+
+.mascot {
+  animation: mascot-up 400ms cubic-bezier(0.2, 0.7, 0.2, 1) 520ms both;
+}
+
+.l1,
+.l2,
+.l3,
+.l4 {
+  animation: letter-in 400ms cubic-bezier(0.34, 1.45, 0.64, 1) both;
+}
+
+.l1 {
+  animation-delay: 700ms;
+}
+
+.l2 {
+  animation-delay: 760ms;
+}
+
+.l3 {
+  animation-delay: 820ms;
+}
+
+.l4 {
+  animation-delay: 880ms;
+}
+
+.til {
+  animation: til-in 320ms cubic-bezier(0.3, 1.7, 0.5, 1) 1060ms both;
+}
+
+.slogan {
+  animation: slogan-in 330ms cubic-bezier(0.2, 0.7, 0.2, 1) 1120ms both;
+}
+
+@keyframes wave-up {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* O mascote começa no centro da tela (mesmo pixel da imagem parada) e sobe para o lugar. */
+@keyframes mascot-up {
+  from {
+    transform: translateY(121.5px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes letter-in {
+  from {
+    transform: translateY(46px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes til-in {
+  from {
+    transform: translateY(-34px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slogan-in {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Movimento reduzido: sem ondas nem movimento, só a troca suave do creme para o quadro final. */
+@media (prefers-reduced-motion: reduce) {
+  .waveBack,
+  .waveFront,
+  .crest,
+  .mascot,
+  .l1,
+  .l2,
+  .l3,
+  .l4,
+  .til,
+  .slogan {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .stage {
+    animation: fade-in 250ms ease-out both;
+  }
+}

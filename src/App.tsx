@@ -1,9 +1,13 @@
-import { lazy, Suspense, type JSX } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, type JSX } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { db } from './db/db';
 import { ButcherPage } from './features/butcher/ButcherPage';
 import { CatalogPage } from './features/catalog/CatalogPage';
 import { ExpenseCategoriesPage } from './features/settings/ExpenseCategoriesPage';
 import { SettingsPage } from './features/settings/SettingsPage';
+import { Splash } from './features/splash/Splash';
+import { Welcome } from './features/welcome/Welcome';
+import { isStandalone } from './lib/standalone';
 import { GoalsPage } from './features/goals/GoalsPage';
 import { HomePage } from './features/home/HomePage';
 import { WeekPage } from './features/week/WeekPage';
@@ -26,6 +30,26 @@ const IngredientsPage = lazy(() => recipes().then((m) => ({ default: m.Ingredien
 const later = (page: JSX.Element) => <Suspense fallback={null}>{page}</Suspense>;
 
 export function App() {
+  // Abertura só na abertura a frio (o App não é recriado ao voltar do segundo plano).
+  const [splash, setSplash] = useState(true);
+  const [dbReady, setDbReady] = useState(false);
+  // Boas-vindas ao abrir pelo Safari (fora do modo instalado), depois da abertura.
+  const [welcome, setWelcome] = useState(() => !isStandalone());
+
+  useEffect(() => {
+    // Mesmo se o banco falhar, a abertura sai: a tela mostra o erro, não fica presa no logo.
+    db.open().then(
+      () => setDbReady(true),
+      () => setDbReady(true),
+    );
+  }, []);
+
+  const endSplash = useCallback(() => {
+    setSplash(false);
+    // O index.html começa com o creme da imagem de abertura; depois, a barra de cima fica na cor da página.
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#F4F2ED');
+  }, []);
+
   return (
     <HashRouter>
       <Routes>
@@ -50,6 +74,8 @@ export function App() {
         <Route path="/ingredientes" element={later(<IngredientsPage />)} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {!splash && welcome && <Welcome onContinue={() => setWelcome(false)} />}
+      {splash && <Splash ready={dbReady} onDone={endSplash} />}
     </HashRouter>
   );
 }

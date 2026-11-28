@@ -79,6 +79,7 @@ O Arão faz geladinhos e assados (brownie tradicional, brownie recheado e tortas
   - Só `transform` e `opacity`; letras, til, mascote e slogan são paths separados no SVG para animar.
   - **Deitado:** a mesma animação, com a logo centralizada na tela inteira (cabe: 273px de altura). O `Splash` ocupa a tela toda (`position: fixed; inset: 0`, sem descontar as safe areas) para bater com a imagem parada nas duas orientações. Se o celular girar durante a abertura, só recentraliza.
 - **Boas-vindas (fora do modo instalado):** topo azul com a logo vertical; título "Instale o Controle Arão"; 3 passos (Compartilhar → Adicionar à Tela de Início → abrir pelo ícone do papagaio); aviso de que os dados ficam só no iPhone; botão "Continuar no Safari".
+  - Feito em 28/11 (passo 8): aparecem a cada abertura pelo Safari, depois da abertura animada, até tocar em "Continuar no Safari" (não fica guardado: na próxima abertura pelo Safari aparecem de novo). Enquanto estão abertas, a barra do Safari fica azul. Deitado: logo à esquerda, passos à direita. O aviso "Instale o app na Tela de Início" do Início continua.
 
 ## Estrutura de pastas
 

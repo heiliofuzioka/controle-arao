@@ -1,0 +1,142 @@
+/* Boas-vindas (tela 05): topo azul com a logo; painel creme com os 3 passos. */
+.welcome {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: #1a4594;
+}
+
+.top {
+  flex: 1 0 auto;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(var(--area-segura-topo), var(--espaco-24)) var(--espaco-24) var(--espaco-24);
+}
+
+.logo {
+  width: 176px;
+  height: auto;
+}
+
+.panel {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-16);
+  padding: var(--espaco-24) calc(20px + var(--area-segura-direita)) max(34px, var(--area-segura-base))
+    calc(20px + var(--area-segura-esquerda));
+  border-radius: 28px 28px 0 0;
+  background: var(--cor-fundo-pagina);
+}
+
+.title {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  font-size: var(--tipo-titulo);
+  line-height: var(--tipo-titulo-linha);
+  letter-spacing: var(--aperto-titulo);
+  color: var(--cor-texto);
+}
+
+.subtitle {
+  font-weight: var(--peso-rotulo);
+  color: var(--cor-texto-secundario);
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: var(--espaco-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-12);
+  border-radius: 20px;
+  background: var(--cor-fundo-card);
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-12);
+}
+
+.number {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-acao);
+  color: var(--cor-texto-sobre-acao);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--peso-forte);
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.stepText {
+  flex: 1 1 0;
+  min-width: 0;
+  font-weight: var(--peso-rotulo);
+  color: var(--cor-texto);
+}
+
+.stepIcon {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-info-suave);
+  color: var(--cor-acao);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appIcon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+}
+
+.note {
+  font-weight: var(--peso-forte);
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--cor-texto-secundario);
+}
+
+.continue {
+  height: 56px;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0 var(--espaco-24);
+  background: var(--cor-fundo-card);
+  color: var(--cor-acao);
+  font-weight: 800;
+}
+
+/* Celular deitado: logo à esquerda, passos à direita. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .welcome {
+    flex-direction: row;
+  }
+
+  .top {
+    flex: 0 0 40%;
+    padding-left: calc(var(--espaco-24) + var(--area-segura-esquerda));
+  }
+
+  .panel {
+    flex: 1 1 0;
+    overflow-y: auto;
+    border-radius: 28px 0 0 28px;
+    padding-left: var(--espaco-24);
+  }
+}

@@ -8,13 +8,17 @@ import {
   previousMonth,
   weekRange,
   weekRangeFromStart,
+  shiftDays,
+  weekStartOf,
   weeksOfMonth,
   yearRange,
   type DateRange,
 } from './dates';
+import { overdueSettlements, previousWeekUnclosed } from './alerts';
 import { alive } from './records';
+import { importedWeekCloseIds } from './stock';
 import { compare, estimatedProfit, periodSummary, ratio, type Comparison, type PeriodSummary, type ProfitData, type SummaryData } from './totals';
-import type { Cents, ID, LocalDate, MonthKey, Sale } from './types';
+import type { Cents, ID, LocalDate, MonthKey, Product, Sale, Settlement, WeekClose } from './types';
 
 /** Filtro do Painel. */
 export type Period = 'week' | 'month' | '2months' | '6months' | 'year';
@@ -170,4 +174,85 @@ export function yearReport(data: DashboardData, year: number): YearMonth[] {
     profitComplete: t.profitComplete,
     revenueVsPrevious: compare(t.revenueCents, totals[i]!.revenueCents),
   }));
+}
+
+// ── Gráfico de ondas, rótulos e alertas do Painel ──
+
+/**
+ * Semanas do gráfico de ondas: do começo do período até a semana atual,
+ * e pelo menos as últimas 8 semanas (a faixa do período fica destacada).
+ */
+export function waveWeeks(period: Period, today: LocalDate): LocalDate[] {
+  const last8 = lastWeeks(today, 8);
+  const periodStart = weekStartOf(periodRange(period, today).start);
+  const current = weekStartOf(today);
+  const start = periodStart < last8[0]! ? periodStart : last8[0]!;
+  const weeks: LocalDate[] = [];
+  for (let w = start; w <= current; w = shiftDays(w, 7)) weeks.push(w);
+  return weeks;
+}
+
+export type WaveTone = 'brownie' | 'torta' | 'gelinho' | 'other';
+
+export interface WaveLayer {
+  key: string;
+  label: string;
+  tone: WaveTone;
+  productIds: ID[];
+}
+
+/**
+ * Camadas das ondas, de trás para a frente: Brownie (tradicional + recheado), Torta e Gelinho.
+ * Produto novo entra como uma camada a mais, na frente, com cor neutra.
+ */
+export function waveLayers(products: Product[]): WaveLayer[] {
+  const known: Record<string, { key: string; label: string; tone: WaveTone }> = {
+    B: { key: 'brownie', label: 'Brownie', tone: 'brownie' },
+    R: { key: 'brownie', label: 'Brownie', tone: 'brownie' },
+    t: { key: 'torta', label: 'Torta', tone: 'torta' },
+    G: { key: 'gelinho', label: 'Gelinho', tone: 'gelinho' },
+  };
+  const order = ['brownie', 'torta', 'gelinho'];
+  const layers = new Map<string, WaveLayer>();
+  for (const p of products) {
+    const k = known[p.code] ?? { key: p.id, label: p.name, tone: 'other' as const };
+    const layer = layers.get(k.key) ?? { ...k, productIds: [] };
+    layer.productIds.push(p.id);
+    layers.set(k.key, layer);
+  }
+  const rank = (l: WaveLayer) => (order.includes(l.key) ? order.indexOf(l.key) : order.length);
+  return [...layers.values()].sort((a, b) => rank(a) - rank(b));
+}
+
+/** Valor de cada camada numa semana (soma dos produtos da camada). */
+export function layerValue(point: WeekProductPoint, layer: WaveLayer): Cents {
+  return layer.productIds.reduce((sum, id) => sum + (point.byProduct[id] ?? 0), 0);
+}
+
+/** Já existe alguma semana fechada no app? Sem nenhuma, o Painel mostra "Os gráficos aparecem aqui". */
+export function hasClosedWeek(weekCloses: WeekClose[], sales: Sale[]): boolean {
+  const imported = importedWeekCloseIds(sales);
+  return alive(weekCloses).some((w) => !imported.has(w.id));
+}
+
+export type DashboardAlert =
+  | { kind: 'settlement_overdue'; count: number }
+  | { kind: 'week_unclosed'; weekStart: LocalDate };
+
+/**
+ * Alertas do topo do Painel. Backup (passo 8) e produto sem receita (passo 7) entram
+ * quando as telas deles existirem.
+ */
+export function dashboardAlerts(
+  data: { settlements: Settlement[]; weekCloses: WeekClose[]; sales: Sale[] },
+  today: LocalDate,
+): DashboardAlert[] {
+  const out: DashboardAlert[] = [];
+  const overdue = overdueSettlements(data.settlements, today);
+  if (overdue.length > 0) out.push({ kind: 'settlement_overdue', count: overdue.length });
+  if (hasClosedWeek(data.weekCloses, data.sales)) {
+    const unclosed = previousWeekUnclosed(data.weekCloses, today);
+    if (unclosed) out.push({ kind: 'week_unclosed', weekStart: unclosed });
+  }
+  return out;
 }

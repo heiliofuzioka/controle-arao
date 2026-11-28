@@ -71,3 +71,21 @@ const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 export function formatWeekdayDate(date: LocalDate): string {
   return `${WEEKDAYS[parseLocalDate(date).getDay()]} ${formatShortDate(date)}`;
 }
+
+/** "17 nov" (dia e mês curto, para gráficos). */
+export function formatDayShortMonth(date: LocalDate): string {
+  return fmt(date, "d MMM");
+}
+
+/** "jun" (mês curto, para gráficos). */
+export function formatMonthShort(month: string): string {
+  return fmt(`${month}-01`, 'MMM');
+}
+
+/** Rótulo do período do Painel: "16 a 22 de nov", "1 a 30 de nov", "out a nov", "jun a nov", "2026". */
+export function formatPeriodLabel(range: { start: LocalDate; end: LocalDate }, kind: 'week' | 'month' | 'months' | 'year'): string {
+  if (kind === 'year') return range.start.slice(0, 4);
+  if (kind === 'months') return `${formatMonthShort(range.start.slice(0, 7))} a ${formatMonthShort(range.end.slice(0, 7))}`;
+  if (kind === 'month') return `${fmt(range.start, 'd')} a ${fmt(range.end, "d 'de' MMM")}`;
+  return formatWeekRangeShort(range.start);
+}

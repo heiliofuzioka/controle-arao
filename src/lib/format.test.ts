@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatCount,
+  formatDayShortMonth,
+  formatMonthShort,
+  formatPeriodLabel,
   formatDayLabel,
   formatDayMonth,
   formatMonthName,
@@ -60,5 +63,19 @@ describe('semana, mês e dia da semana', () => {
   it('dia da semana com a data', () => {
     expect(formatWeekdayDate('2026-11-05')).toBe('Qui 05/11');
     expect(formatWeekdayDate('2026-11-08')).toBe('Dom 08/11');
+  });
+});
+
+describe('textos do Painel', () => {
+  it('dia e mês curtos', () => {
+    expect(formatDayShortMonth('2026-11-17')).toBe('17 nov');
+    expect(formatMonthShort('2026-06')).toBe('jun');
+  });
+
+  it('rótulo do período', () => {
+    expect(formatPeriodLabel({ start: '2026-11-16', end: '2026-11-22' }, 'week')).toBe('16 a 22 de nov');
+    expect(formatPeriodLabel({ start: '2026-11-01', end: '2026-11-30' }, 'month')).toBe('1 a 30 de nov');
+    expect(formatPeriodLabel({ start: '2026-06-01', end: '2026-11-30' }, 'months')).toBe('jun a nov');
+    expect(formatPeriodLabel({ start: '2026-01-01', end: '2026-12-31' }, 'year')).toBe('2026');
   });
 });

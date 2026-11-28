@@ -48,3 +48,13 @@ export function formatReais(cents: Cents): string {
 export function formatPercent(ratio: number): string {
   return `${Math.round(ratio * 100)}%`;
 }
+
+const oneDecimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
+
+/** Valor curto para gráficos: "R$ 742", "R$ 2,7 mil", "R$ 15 mil". */
+export function formatCompactReais(cents: Cents): string {
+  const reais = Math.round(cents / 100);
+  if (Math.abs(reais) < 1000) return formatReais(cents);
+  const thousands = reais / 1000;
+  return `R$ ${oneDecimal.format(Math.abs(thousands) >= 10 ? Math.round(thousands) : thousands)} mil`;
+}

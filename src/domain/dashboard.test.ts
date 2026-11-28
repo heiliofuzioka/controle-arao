@@ -2,13 +2,18 @@ import { describe, expect, it } from 'vitest';
 import {
   bucketTotals,
   columnBuckets,
+  dashboardAlerts,
   dashboardCards,
+  hasClosedWeek,
+  layerValue,
   periodRange,
+  waveLayers,
+  waveWeeks,
   weeklyProductSeries,
   yearReport,
   type DashboardData,
 } from './dashboard';
-import { BUTCHER, OTHER, P, expense, expenseCategory, sale, settlement } from './testing';
+import { BUTCHER, OTHER, P, expense, expenseCategory, product, sale, settlement, weekClose } from './testing';
 
 const today = '2026-11-08'; // domingo
 
@@ -113,5 +118,52 @@ describe('tela Ano', () => {
     expect(months[9]).toMatchObject({ month: '2026-10', revenueCents: 1000 });
     expect(months[10]!.revenueVsPrevious).toMatchObject({ current: 8200, previous: 1000, delta: 7200 });
     expect(months[0]!.revenueVsPrevious.previous).toBe(0); // dezembro do ano anterior
+  });
+});
+
+describe('gráfico de ondas e alertas', () => {
+  it('semanas das ondas: pelo menos 8, ou o período inteiro', () => {
+    const month = waveWeeks('month', today);
+    expect(month).toHaveLength(8);
+    expect(month[7]).toBe('2026-11-02');
+    const six = waveWeeks('6months', today);
+    expect(six[0]).toBe('2026-06-01'); // segunda da semana de 1/6
+    expect(six.at(-1)).toBe('2026-11-02');
+    expect(waveWeeks('year', today)[0]).toBe('2025-12-29');
+  });
+
+  it('camadas: Brownie junta tradicional e recheado; produto novo vai na frente', () => {
+    const layers = waveLayers([
+      product({ id: 'g', code: 'G', name: 'Gelinho' }),
+      product({ id: 'b', code: 'B', name: 'Brownie' }),
+      product({ id: 'r', code: 'R', name: 'Brownie recheado' }),
+      product({ id: 't', code: 't', name: 'Torta' }),
+      product({ id: 'c', code: 'C', name: 'Cookie' }),
+    ]);
+    expect(layers.map((l) => [l.label, l.tone, l.productIds])).toEqual([
+      ['Brownie', 'brownie', ['b', 'r']],
+      ['Torta', 'torta', ['t']],
+      ['Gelinho', 'gelinho', ['g']],
+      ['Cookie', 'other', ['c']],
+    ]);
+    expect(layerValue({ weekStart: 'x', byProduct: { b: 100, r: 50, t: 9 }, totalCents: 159 }, layers[0]!)).toBe(150);
+  });
+
+  it('sem semana fechada, os gráficos não aparecem', () => {
+    expect(hasClosedWeek([], [])).toBe(false);
+    expect(hasClosedWeek([weekClose()], [])).toBe(true);
+    expect(hasClosedWeek([weekClose({ id: 'imp' })], [sale({ origin: 'import', weekCloseId: 'imp' })])).toBe(false);
+  });
+
+  it('alertas: acerto atrasado e semana passada sem fechamento', () => {
+    expect(dashboardAlerts({ settlements: [], weekCloses: [], sales: [] }, today)).toEqual([]);
+    const alerts = dashboardAlerts(
+      { settlements: [settlement({ date: '2026-10-01' })], weekCloses: [weekClose({ weekStart: '2026-10-19' })], sales: [] },
+      today,
+    );
+    expect(alerts).toEqual([
+      { kind: 'settlement_overdue', count: 1 },
+      { kind: 'week_unclosed', weekStart: '2026-10-26' },
+    ]);
   });
 });

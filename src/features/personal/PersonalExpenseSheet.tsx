@@ -6,21 +6,23 @@ import { Sheet } from '../../components/Sheet';
 import { db } from '../../db/db';
 import { deletePersonalExpense, savePersonalExpense } from '../../db/operations';
 import { toLocalDate } from '../../domain/dates';
-import type { Cents, PersonalExpense } from '../../domain/types';
+import type { Cents, LocalDate, PersonalExpense } from '../../domain/types';
 import { formatCents } from '../../lib/money';
 
 interface Props {
   /** Gasto a editar. Sem isso, é um gasto novo. */
   personalExpense?: PersonalExpense;
+  /** Data inicial de um gasto novo (hoje, se não vier). */
+  defaultDate?: LocalDate;
   onClose: () => void;
   onSaved: (message: string) => void;
 }
 
 /** Folha "Gasto pessoal": fluxo separado das despesas do negócio. */
-export function PersonalExpenseSheet({ personalExpense, onClose, onSaved }: Props) {
+export function PersonalExpenseSheet({ personalExpense, defaultDate, onClose, onSaved }: Props) {
   const today = toLocalDate(new Date());
   const [valueCents, setValueCents] = useState<Cents | null>(personalExpense?.valueCents ?? null);
-  const [date, setDate] = useState(personalExpense?.date ?? today);
+  const [date, setDate] = useState(personalExpense?.date ?? defaultDate ?? today);
   const [description, setDescription] = useState(personalExpense?.description ?? '');
   const [tried, setTried] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);

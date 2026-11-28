@@ -15,11 +15,16 @@ export function ColumnChart({
   buckets,
   subtitle,
   compact = false,
+  tone = 'dark',
 }: {
   buckets: BucketTotal[];
-  subtitle: string;
+  /** Vazio: sem título nem subtítulo (tela Ano). */
+  subtitle?: string;
   compact?: boolean;
+  /** 'light': cores das telas claras (Ano). */
+  tone?: 'dark' | 'light';
 }) {
+  const light = tone === 'light';
   const max = Math.max(1, ...buckets.map((b) => b.revenueCents));
   const scale = scaleLinear().domain([0, max]).nice(4);
   const ticks = scale.ticks(4);
@@ -28,19 +33,21 @@ export function ColumnChart({
   const sparse = buckets.length > 9;
 
   return (
-    <div className={styles.chartCard}>
-      <div className={styles.chartHead}>
-        <h2 className={styles.chartTitle}>Faturamento e lucro</h2>
-        {!compact && <p className={styles.chartSubtitle}>{subtitle}</p>}
-      </div>
+    <div className={`${styles.chartCard} ${light ? styles.light : ''}`}>
+      {subtitle !== undefined && (
+        <div className={styles.chartHead}>
+          <h2 className={styles.chartTitle}>Faturamento e lucro</h2>
+          {!compact && <p className={styles.chartSubtitle}>{subtitle}</p>}
+        </div>
+      )}
       <Legend
         items={[
-          { label: 'Faturamento', color: 'var(--cor-grafico-faturamento)' },
-          { label: 'Lucro', color: 'var(--cor-grafico-lucro)' },
+          { label: 'Faturamento', color: light ? 'var(--cor-acao)' : 'var(--cor-grafico-faturamento)' },
+          { label: light ? 'Lucro estimado' : 'Lucro', color: light ? 'var(--cor-sucesso)' : 'var(--cor-grafico-lucro)' },
         ]}
       />
 
-      <div className={styles.columns} role="img" aria-label={`Colunas de faturamento com o lucro dentro. ${subtitle}.`}>
+      <div className={styles.columns} role="img" aria-label={`Colunas de faturamento com o lucro dentro.${subtitle ? ` ${subtitle}.` : ''}`}>
         <div className={styles.yAxis} style={{ height: PLOT_HEIGHT }}>
           {[...ticks].reverse().map((t) => (
             <span key={t} className={styles.yLabel} style={{ bottom: (t / top) * PLOT_HEIGHT }}>
@@ -57,6 +64,7 @@ export function ColumnChart({
                     {formatCompactReais(b.revenueCents)}
                   </span>
                 )}
+                {light && b.revenueCents === 0 && <div className={styles.barEmpty} />}
                 <div
                   className={`${styles.bar} ${b.isCurrent ? styles.barCurrent : ''}`}
                   style={{ height: height(b.revenueCents) }}
@@ -77,7 +85,7 @@ export function ColumnChart({
         </div>
       </div>
 
-      {!compact && <p className={styles.chartSubtitle}>Lucro estimado é a coluna verde, dentro do faturamento</p>}
+      {!compact && !light && <p className={styles.chartSubtitle}>Lucro estimado é a coluna verde, dentro do faturamento</p>}
     </div>
   );
 }

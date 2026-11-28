@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Icon, type IconName } from './Icon';
 import styles from './TabLayout.module.css';
 
@@ -31,6 +31,10 @@ export function TabLayout({
   /** Painel deitado: sem barra de abas. */
   hideTabsInLandscape?: boolean;
 }) {
+  const { pathname } = useLocation();
+  // Fechamento do mês e Ano abrem pelo Painel: a aba Painel fica acesa.
+  const isActiveTab = (to: string, matched: boolean) =>
+    matched || (to === '/painel' && (pathname.startsWith('/mes') || pathname.startsWith('/ano')));
   return (
     <div
       className={`${styles.layout} ${tone === 'dark' ? styles.dark : ''} ${hideTabsInLandscape ? styles.noTabsLandscape : ''}`}
@@ -39,15 +43,23 @@ export function TabLayout({
       {actions && <div className={actionsLayout === 'row' ? styles.actions : styles.actionsStack}>{actions}</div>}
       <nav className={styles.tabs} aria-label="Abas">
         {TABS.map((tab) => (
-          <NavLink key={tab.to} to={tab.to} end className={({ isActive }) => `${styles.tab} ${isActive ? styles.active : ''}`}>
-            {({ isActive }) => (
+          <NavLink
+            key={tab.to}
+            to={tab.to}
+            end
+            className={({ isActive }) => `${styles.tab} ${isActiveTab(tab.to, isActive) ? styles.active : ''}`}
+          >
+            {({ isActive: matched }) => {
+              const isActive = isActiveTab(tab.to, matched);
+              return (
               <>
                 <span className={styles.tabIcon}>
                   <Icon name={tab.icon} size={isActive ? 24 : 26} />
                 </span>
                 <span className={styles.tabLabel}>{tab.label}</span>
               </>
-            )}
+              );
+            }}
           </NavLink>
         ))}
       </nav>

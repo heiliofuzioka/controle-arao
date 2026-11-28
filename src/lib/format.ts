@@ -89,3 +89,10 @@ export function formatPeriodLabel(range: { start: LocalDate; end: LocalDate }, k
   if (kind === 'month') return `${fmt(range.start, 'd')} a ${fmt(range.end, "d 'de' MMM")}`;
   return formatWeekRangeShort(range.start);
 }
+
+/** "3 a 9 nov" ou "27 out a 2 nov" (semanas do mês). */
+export function formatWeekCompact(weekStart: LocalDate): string {
+  const end = shiftDays(weekStart, 6);
+  const sameMonth = weekStart.slice(0, 7) === end.slice(0, 7);
+  return `${fmt(weekStart, sameMonth ? 'd' : 'd MMM')} a ${fmt(end, 'd MMM')}`;
+}

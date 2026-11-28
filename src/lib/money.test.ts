@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { formatCents, formatCentsPlain, formatCompactReais, formatPercent, formatReais, parseCentsInput } from './money';
+import {
+  formatCents,
+  formatCentsPlain,
+  formatCompactReais,
+  formatPercent,
+  formatReais,
+  formatSignedPercent,
+  parseCentsInput,
+} from './money';
 
 describe('formatCents', () => {
   it('formata em reais', () => {
@@ -54,5 +62,13 @@ describe('valores curtos dos gráficos', () => {
     expect(formatCompactReais(274700)).toBe('R$ 2,7 mil');
     expect(formatCompactReais(300000)).toBe('R$ 3 mil');
     expect(formatCompactReais(1496400)).toBe('R$ 15 mil');
+  });
+});
+
+describe('variação com sinal', () => {
+  it('mais, menos e zero', () => {
+    expect(formatSignedPercent(0.12)).toBe('+12%');
+    expect(formatSignedPercent(-0.031)).toBe('−3%');
+    expect(formatSignedPercent(0.001)).toBe('0%');
   });
 });

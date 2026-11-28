@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatCount,
+  formatWeekCompact,
   formatDayShortMonth,
   formatMonthShort,
   formatPeriodLabel,
@@ -77,5 +78,12 @@ describe('textos do Painel', () => {
     expect(formatPeriodLabel({ start: '2026-11-01', end: '2026-11-30' }, 'month')).toBe('1 a 30 de nov');
     expect(formatPeriodLabel({ start: '2026-06-01', end: '2026-11-30' }, 'months')).toBe('jun a nov');
     expect(formatPeriodLabel({ start: '2026-01-01', end: '2026-12-31' }, 'year')).toBe('2026');
+  });
+});
+
+describe('semana curta', () => {
+  it('com e sem virada de mês', () => {
+    expect(formatWeekCompact('2026-11-02')).toBe('2 a 8 nov');
+    expect(formatWeekCompact('2026-10-26')).toBe('26 out a 1 nov');
   });
 });

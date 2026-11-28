@@ -11,26 +11,20 @@ import { loadActiveProducts } from '../../db/operations';
 import { loadHomeData } from '../../db/queries';
 import { toLocalDate } from '../../domain/dates';
 import { homeSummary } from '../../domain/home';
-import type { Delivery, Expense, LocalDate, PersonalExpense, Settlement } from '../../domain/types';
+import type { Expense, LocalDate, PersonalExpense } from '../../domain/types';
 import { formatMonthName } from '../../lib/format';
 import { formatCents } from '../../lib/money';
 import { isStandalone } from '../../lib/standalone';
-import { DeliverySheet } from '../butcher/DeliverySheet';
-import { SettlementSheet } from '../butcher/SettlementSheet';
 import { ExpenseSheet } from '../expense/ExpenseSheet';
 import { PersonalExpenseSheet } from '../personal/PersonalExpenseSheet';
 import { WeekCloseSheet } from '../week-close/WeekCloseSheet';
 import { CountSheet } from './CountSheet';
 import styles from './HomePage.module.css';
-import type { RecentEntry } from './recent';
-import { RecentList } from './RecentList';
 
 type OpenSheet =
   | { kind: 'week'; weekStart?: LocalDate }
   | { kind: 'expense'; expense?: Expense }
   | { kind: 'personal'; personalExpense?: PersonalExpense }
-  | { kind: 'delivery'; delivery: Delivery }
-  | { kind: 'settlement'; settlement: Settlement }
   | { kind: 'count' }
   | null;
 
@@ -58,14 +52,6 @@ export function HomePage() {
   const saved = (text: string) => {
     setSheet(null);
     setMessage(text);
-  };
-
-  const open = (entry: RecentEntry) => {
-    if (entry.kind === 'week') setSheet({ kind: 'week', weekStart: entry.weekStart });
-    else if (entry.kind === 'expense') setSheet({ kind: 'expense', expense: entry.expense });
-    else if (entry.kind === 'personal') setSheet({ kind: 'personal', personalExpense: entry.personalExpense });
-    else if (entry.kind === 'delivery') setSheet({ kind: 'delivery', delivery: entry.delivery });
-    else setSheet({ kind: 'settlement', settlement: entry.settlement });
   };
 
   const shortcuts = (
@@ -186,10 +172,6 @@ export function HomePage() {
             </EntryList>
           </section>
 
-          <section className={styles.section}>
-            <SectionTitle>Últimos lançamentos</SectionTitle>
-            <RecentList onOpen={open} />
-          </section>
 
           {/* Em telas baixas os atalhos rolam junto (o bloco preso embaixo some). */}
           <div className={styles.inlineShortcuts}>{shortcuts}</div>
@@ -203,8 +185,6 @@ export function HomePage() {
       {sheet?.kind === 'personal' && (
         <PersonalExpenseSheet personalExpense={sheet.personalExpense} onClose={close} onSaved={saved} />
       )}
-      {sheet?.kind === 'delivery' && <DeliverySheet delivery={sheet.delivery} onClose={close} onSaved={saved} />}
-      {sheet?.kind === 'settlement' && <SettlementSheet settlement={sheet.settlement} onClose={close} onSaved={saved} />}
       {sheet?.kind === 'count' && <CountSheet onClose={close} onSaved={saved} />}
     </TabLayout>
   );

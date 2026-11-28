@@ -556,3 +556,66 @@
     line-height: 28px;
   }
 }
+
+/* ── Colunas em tela clara (Ano) ── */
+.light {
+  background: var(--cor-fundo-card);
+  border-radius: var(--raio-card);
+}
+
+.light .legend,
+.light .yLabel,
+.light .barLabel,
+.light .chartSubtitle {
+  color: var(--cor-texto-secundario);
+}
+
+.light .chartTitle,
+.light .barLabelCurrent {
+  color: var(--cor-texto);
+  font-weight: var(--peso-forte);
+}
+
+.light .bar {
+  background: #9db3e0;
+  opacity: 1;
+}
+
+.light .barCurrent {
+  background: var(--cor-acao);
+}
+
+.light .barProfit {
+  background: var(--cor-sucesso);
+}
+
+.light .barValue {
+  background: var(--cor-acao);
+  color: var(--cor-texto-sobre-acao);
+}
+
+.barEmpty {
+  height: 2px;
+  background: #d9d3c7;
+}
+
+/* Botões do fim do Painel */
+.footerButtons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espaco-8);
+}
+
+.footerButton {
+  height: var(--altura-botao);
+  min-width: 0;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0 var(--espaco-12);
+  background: var(--cor-painel-texto);
+  color: var(--cor-acao);
+  font-weight: var(--peso-forte);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

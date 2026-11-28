@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { BigButton } from '../../components/buttons';
 import { CardPair, HeroCard, PeriodPicker, SectionTitle, StatCard } from '../../components/cards';
 import { EntryList, EntryRow, ProductBadge } from '../../components/EntryList';
@@ -30,7 +31,9 @@ const sold = (n: number) => (n === 1 ? '1 vendido' : `${n} vendidos`);
 /** Aba Semana: faturamento, na mão × Açougue e, por produto, produzido, vendido, em estoque e faturamento. */
 export function WeekPage() {
   const currentWeek = weekStartOf(toLocalDate(new Date()));
-  const [weekStart, setWeekStart] = useState(currentWeek);
+  // O Fechamento do mês abre a Semana direto na semana tocada.
+  const requested = (useLocation().state as { weekStart?: string } | null)?.weekStart;
+  const [weekStart, setWeekStart] = useState(requested && requested <= currentWeek ? requested : currentWeek);
   const [sheet, setSheet] = useState<OpenSheet>(null);
   const [message, setMessage] = useState<string | null>(null);
 

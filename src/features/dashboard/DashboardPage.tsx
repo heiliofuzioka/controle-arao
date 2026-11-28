@@ -236,6 +236,15 @@ export function DashboardPage() {
               </div>
             </>
           )}
+
+          <div className={`${styles.footerButtons} ${styles.portraitOnly}`}>
+            <button type="button" className={styles.footerButton} onClick={() => navigate(`/mes/${monthKey(today)}`)}>
+              Fechamento do mês
+            </button>
+            <button type="button" className={styles.footerButton} onClick={() => navigate(`/ano/${today.slice(0, 4)}`)}>
+              Ver o ano
+            </button>
+          </div>
         </div>
       </div>
 

@@ -58,3 +58,10 @@ export function formatCompactReais(cents: Cents): string {
   const thousands = reais / 1000;
   return `R$ ${oneDecimal.format(Math.abs(thousands) >= 10 ? Math.round(thousands) : thousands)} mil`;
 }
+
+/** Variação com sinal: 0,12 → "+12%", −0,03 → "−3%". */
+export function formatSignedPercent(ratio: number): string {
+  const value = Math.round(ratio * 100);
+  if (value === 0) return '0%';
+  return `${value > 0 ? '+' : '−'}${Math.abs(value)}%`;
+}

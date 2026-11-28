@@ -1,0 +1,39 @@
+.hint {
+  color: var(--cor-texto-secundario);
+  font-size: var(--tipo-rotulo);
+  line-height: var(--tipo-rotulo-linha);
+  font-weight: var(--peso-rotulo);
+}
+
+.link {
+  align-self: flex-start;
+  min-height: var(--toque-minimo);
+  margin: calc(-1 * var(--espaco-12)) 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--cor-acao);
+  font-weight: var(--peso-forte);
+}
+
+/* ── Tela Ano: chips de comparação ── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-8);
+}
+
+.chip {
+  height: var(--altura-botao-compacto);
+  border: 0;
+  border-radius: var(--raio-pilula);
+  padding: 0 var(--espaco-16);
+  background: var(--cor-fundo-card);
+  color: var(--cor-acao);
+  font-weight: var(--peso-forte);
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--cor-acao);
+  color: var(--cor-texto-sobre-acao);
+}

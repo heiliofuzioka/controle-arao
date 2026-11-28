@@ -8,24 +8,26 @@ import { db } from '../../db/db';
 import { deleteExpense, saveExpense } from '../../db/operations';
 import { toLocalDate } from '../../domain/dates';
 import { alive, byCreation } from '../../domain/records';
-import type { Cents, Expense, ID } from '../../domain/types';
+import type { Cents, Expense, ID, LocalDate } from '../../domain/types';
 import { formatCents } from '../../lib/money';
 import styles from './ExpenseSheet.module.css';
 
 interface Props {
   /** Despesa a editar. Sem isso, é uma despesa nova. */
   expense?: Expense;
+  /** Data inicial de uma despesa nova (hoje, se não vier). */
+  defaultDate?: LocalDate;
   onClose: () => void;
   onSaved: (message: string) => void;
 }
 
 /** Folha "Despesa": valor, data, categoria em botões e descrição curta. */
-export function ExpenseSheet({ expense, onClose, onSaved }: Props) {
+export function ExpenseSheet({ expense, defaultDate, onClose, onSaved }: Props) {
   const today = toLocalDate(new Date());
   const categories = useLiveQuery(async () => byCreation(alive(await db.expenseCategories.toArray())), []);
 
   const [valueCents, setValueCents] = useState<Cents | null>(expense?.valueCents ?? null);
-  const [date, setDate] = useState(expense?.date ?? today);
+  const [date, setDate] = useState(expense?.date ?? defaultDate ?? today);
   const [categoryId, setCategoryId] = useState<ID | null>(expense?.categoryId ?? null);
   const [description, setDescription] = useState(expense?.description ?? '');
   const [tried, setTried] = useState(false);

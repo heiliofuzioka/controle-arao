@@ -283,14 +283,16 @@ lucro por unidade   = preço − custo por unidade
    - **Aviso da semana passada** só aparece depois que o Arão já fechou alguma semana no app (no primeiro uso, só o "Comece contando").
    - Lucro estimado sem receita cadastrada mostra "Falta o custo das receitas" embaixo do valor.
    - Em telas baixas (celular deitado, iPhone pequeno), os atalhos rolam junto com a tela em vez de ficarem presos embaixo.
-   - **Provisório:** a lista "Últimos lançamentos" fica no fim do Início até o Fechamento do mês (passo 6c) trazer a lista de despesas; é por ela que se edita despesa e gasto pessoal.
+   - A lista provisória "Últimos lançamentos" saiu do Início em 28/11 (passo 6c): despesas e gastos pessoais se editam no Fechamento do mês; fechamentos, entregas e acertos, na aba Semana (e os acertos a receber, no Açougue).
 2. **Fechar a semana (folha):** veja a seção acima.
 3. **Açougue:** saldo por produto, Entregar e Fazer acerto, acertos não pagos com "Recebi".
 4. **Despesa / Gasto pessoal (folhas):** valor, data (hoje por padrão, toque para mudar), categoria em botões (12 + as criadas) e descrição curta.
 5. **Semana:** faturamento da semana, divisão na mão × Açougue, e por produto: **produzido, vendido (na mão + Açougue), em estoque e faturamento** ("em estoque" no lugar de "sobrou", pedido de 22/11); tocar num produto abre os lançamentos dele (fechamento, entregas e acertos). Semana sem fechamento mostra o botão "Fechar a semana".
 6. **Painel (aba, fundo escuro):** veja a seção "Painel".
 7. **Fechamento do mês (pelo Painel):** vendas, despesas, saldo, lucro estimado e sobra; metas; produzido, vendido e faturamento por produto; **lista das despesas do mês com "Adicionar despesa"** e total por categoria; semanas do mês; comparação com o mês anterior.
+   - Também lista os **gastos pessoais** do mês, com "Adicionar gasto pessoal" (28/11: é onde se edita e apaga um gasto pessoal; não estava no desenho). Lançamento novo num mês passado começa no último dia dele. Tocar numa semana abre a aba Semana nela.
 8. **Ano (pelo Painel):** janeiro a dezembro em colunas (faturamento com lucro dentro) e lista mês a mês com crescimento ou queda; tocar num mês abre o Fechamento dele; trocar o ano e comparar com outro ano.
+   - Comparar (28/11): botões "Comparar com <ano>" para cada ano anterior com vendas; a comparação usa os meses em que o ano escolhido vendeu. "Mês a mês" lista só os meses com vendas, do mais novo para o mais antigo.
 9. **Receitas (Ajustes):** livro por sabor, agrupado por produto (nome, ingredientes e quantidades, outros custos do lote, rendimento, modo de preparo, observações, custo por unidade); tela de preço e margem; ingredientes com preço pago; cadastrar, editar e excluir.
 10. **Metas (Ajustes):** meta de faturamento e de lucro estimado por mês, com o progresso até agora.
 11. **Categorias e produtos (Ajustes):** criar, editar e organizar categorias e produtos (nome, categoria, sigla, preço, ativo). Produto novo aparece no fechamento da semana, nos gráficos e nas receitas.
